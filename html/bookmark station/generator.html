@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Station Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0c29;
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 32px; margin-bottom: 6px; text-align: center;
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.5); text-align: center;
+      margin-bottom: 36px; font-size: 15px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .section {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 13px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 16px;
+    }
+    input, textarea {
+      width: 100%; padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff; font-size: 14px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { border-color: #667eea; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .field-group { margin-bottom: 12px; }
+    .field-group label {
+      display: block; font-size: 13px;
+      color: rgba(255,255,255,0.6); margin-bottom: 6px;
+    }
+    .link-entry {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 10px;
+    }
+    .link-entry input { flex: 1; }
+    .link-entry .remove {
+      background: none; border: none; color: rgba(255,255,255,0.3);
+      cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .link-entry .remove:hover { color: #ff6b6b; background: rgba(255,107,107,0.1); }
+    .folder-entry {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 16px; margin-bottom: 12px;
+    }
+    .folder-header {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 12px;
+    }
+    .folder-header input { flex: 1; }
+    .folder-children { margin-bottom: 8px; }
+    .folder-children .folder-entry { margin-left: 12px; }
+    .btn-add-subfolder { display: none; }
+    .linkstation-mode .btn-add-subfolder { display: inline-block; }
+    .btn {
+      padding: 12px 24px; border-radius: 10px; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; width: 100%;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.7); width: 100%; margin-top: 8px;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+    .actions { margin-top: 24px; }
+    .actions .btn { margin-bottom: 10px; }
+    #preview-area { display: none; }
+    #preview-area.show { display: block; }
+    .preview-frame {
+      width: 100%; height: 600px;
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+      background: #fff;
+    }
+    .download-btn {
+      background: #22c55e; color: #fff; width: 100%;
+      padding: 14px 24px; border-radius: 10px; border: none;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .color-options {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .color-options button {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .color-options button.active { border-color: #fff; transform: scale(1.1); }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; font-size: 14px; color: rgba(255,255,255,0.7);
+    }
+    .toggle {
+      position: relative; display: inline-block;
+      width: 48px; height: 26px; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: rgba(255,255,255,0.15);
+      border-radius: 26px; transition: 0.3s;
+    }
+    .slider::before {
+      content: ''; position: absolute;
+      height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle input:checked + .slider {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+    .toggle input:checked + .slider::before { transform: translateX(22px); }
+    #profile-section.hidden { display: none; }
+    .right-col .section { margin-bottom: 20px; }
+    .full-width { grid-column: 1 / -1; }
+
+    @media (max-width: 800px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Link Station Generator</h1>
+    <p class="subtitle">Fill in your info and links, then generate your page</p>
+
+    <div class="main-grid">
+      <!-- Left Column -->
+      <div class="left-col">
+        <div class="section">
+          <div class="section-title">Mode</div>
+          <div class="toggle-row" style="margin-bottom:12px">
+            <span>Profile (avatar, name, bio)</span>
+            <label class="toggle">
+              <input type="checkbox" id="mode-toggle">
+              <span class="slider"></span>
+            </label>
+            <span>Link Station (squares)</span>
+          </div>
+          <div class="toggle-row">
+            <span>Include inline editor</span>
+            <label class="toggle">
+              <input type="checkbox" id="editor-toggle" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="section" id="profile-section">
+          <div class="section-title">Profile</div>
+          <div class="field-group">
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Your Name" value="Link Station">
+          </div>
+          <div class="field-group">
+            <label>Bio</label>
+            <input type="text" id="bio" placeholder="A short bio..." value="All my important links in one place">
+          </div>
+          <div class="field-group">
+            <label>Initials (for avatar)</label>
+            <input type="text" id="initials" placeholder="Auto from name" maxlength="2">
+          </div>
+          <div class="field-group">
+            <label>Theme Color</label>
+            <div class="color-options">
+              <button class="active" style="background: linear-gradient(135deg, #667eea, #764ba2)" data-from="#667eea" data-to="#764ba2"></button>
+              <button style="background: linear-gradient(135deg, #f093fb, #f5576c)" data-from="#f093fb" data-to="#f5576c"></button>
+              <button style="background: linear-gradient(135deg, #4facfe, #00f2fe)" data-from="#4facfe" data-to="#00f2fe"></button>
+              <button style="background: linear-gradient(135deg, #43e97b, #38f9d7)" data-from="#43e97b" data-to="#38f9d7"></button>
+              <button style="background: linear-gradient(135deg, #fa709a, #fee140)" data-from="#fa709a" data-to="#fee140"></button>
+              <button style="background: linear-gradient(135deg, #a18cd1, #fbc2eb)" data-from="#a18cd1" data-to="#fbc2eb"></button>
+              <button style="background: linear-gradient(135deg, #fccb90, #d57eeb)" data-from="#fccb90" data-to="#d57eeb"></button>
+              <button style="background: linear-gradient(135deg, #e0c3fc, #8ec5fc)" data-from="#e0c3fc" data-to="#8ec5fc"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-col">
+        <div class="section">
+          <div class="section-title">Import Bookmarks</div>
+          <div class="field-group">
+            <label>Upload a Netscape bookmark file (.html)</label>
+            <input type="file" id="bookmark-file" accept=".html">
+          </div>
+          <button class="btn btn-secondary" onclick="importBookmarks()">Import Bookmarks</button>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Links</div>
+          <div id="links-container">
+            <div class="link-entry">
+              <input type="text" class="link-label" placeholder="Label (e.g. GitHub)" value="GitHub">
+              <input type="url" class="link-url" placeholder="URL (e.g. https://github.com/...)" value="#">
+              <button class="remove" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div class="link-entry">
+              <input type="text" class="link-label" placeholder="Label" value="Twitter / X">
+              <input type="url" class="link-url" placeholder="URL" value="#">
+              <button class="remove" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            <div class="link-entry">
+              <input type="text" class="link-label" placeholder="Label" value="LinkedIn">
+              <input type="url" class="link-url" placeholder="URL" value="#">
+              <button class="remove" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+          </div>
+          <button class="btn btn-secondary" onclick="addLink()" style="margin-bottom:8px">+ Add Link</button>
+          <button class="btn btn-secondary" onclick="addFolder()">+ Add Folder</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="generate()">Generate Link Station</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="preview-area">
+      <div class="section">
+        <div class="section-title">Preview</div>
+        <iframe id="preview" class="preview-frame"></iframe>
+      </div>
+      <button class="download-btn" onclick="downloadHTML()">Download link-station.html</button>
+    </div>
+  </div>
+
+  <script>
+    let currentTheme = { from: '#667eea', to: '#764ba2' };
+    let generatedHTML = '';
+
+    document.querySelectorAll('.color-options button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-options button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTheme.from = btn.dataset.from;
+        currentTheme.to = btn.dataset.to;
+      });
+    });
+
+    document.getElementById('mode-toggle').addEventListener('change', function() {
+      document.getElementById('profile-section').classList.toggle('hidden', this.checked);
+      document.body.classList.toggle('linkstation-mode', this.checked);
+    });
+    document.body.classList.toggle('linkstation-mode', document.getElementById('mode-toggle').checked);
+
+    document.getElementById('name').addEventListener('input', function() {
+      document.getElementById('initials').value = getInitials(this.value);
+    });
+
+    function getInitials(name) {
+      return name.split(/\s+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function addLink(container) {
+      container = container || document.getElementById('links-container');
+      const entry = document.createElement('div');
+      entry.className = 'link-entry';
+      entry.innerHTML = '<input type="text" class="link-label" placeholder="Label" value=""><input type="url" class="link-url" placeholder="URL" value=""><button class="remove" onclick="this.parentElement.remove()">&times;</button>';
+      container.appendChild(entry);
+    }
+
+    function addFolder(container) {
+      container = container || document.getElementById('links-container');
+      const entry = document.createElement('div');
+      entry.className = 'folder-entry';
+      entry.innerHTML = '<div class="folder-header"><input type="text" class="folder-name" placeholder="Folder name"><button class="remove" onclick="this.parentElement.parentElement.remove()">&times;</button></div><div class="folder-children"></div><button class="btn btn-secondary" style="font-size:13px;padding:8px 16px;width:auto" onclick="addLinkToFolder(this)">+ Add Link to Folder</button><button class="btn btn-secondary btn-add-subfolder" style="font-size:13px;padding:8px 16px;width:auto;margin-top:6px" onclick="addSubfolder(this)">+ Add Subfolder</button>';
+      container.appendChild(entry);
+    }
+
+    function addLinkToFolder(btn) {
+      addLink(btn.parentElement.querySelector('.folder-children'));
+    }
+
+    function addSubfolder(btn) {
+      addFolder(btn.parentElement.querySelector('.folder-children'));
+    }
+
+    function collectData(container) {
+      const items = [];
+      for (const child of container.children) {
+        if (child.classList.contains('link-entry')) {
+          const label = child.querySelector('.link-label').value.trim();
+          const url = child.querySelector('.link-url').value.trim();
+          if (label && url) items.push({ type: 'link', label, url });
+        } else if (child.classList.contains('folder-entry')) {
+          const name = child.querySelector('.folder-name').value.trim();
+          const children = collectData(child.querySelector('.folder-children'));
+          if (children.length > 0) items.push({ type: 'folder', name, items: children });
+        }
+      }
+      return items;
+    }
+
+    function parseBookmarks(node, container, depth) {
+      depth = depth || 0;
+      for (let child = node.firstElementChild; child; child = child.nextElementSibling) {
+        const t = child.tagName.toUpperCase();
+        if (t === 'DT') {
+          const h3 = child.querySelector(':scope > H3');
+          if (h3) {
+            const folderName = h3.textContent.trim();
+            if (!folderName) continue;
+            const dl = child.querySelector(':scope > DL');
+            if (!dl) continue;
+            addFolder(container);
+            const entry = container.lastElementChild;
+            entry.querySelector('.folder-name').value = folderName;
+            parseBookmarks(dl, entry.querySelector('.folder-children'), depth + 1);
+          } else {
+            const a = child.querySelector(':scope > A');
+            if (a && a.getAttribute('HREF')) {
+              const url = a.getAttribute('HREF');
+              const label = a.textContent.trim();
+              if (!label || !url) continue;
+              addLink(container);
+              const entry = container.lastElementChild;
+              entry.querySelector('.link-label').value = label;
+              entry.querySelector('.link-url').value = url;
+            }
+          }
+        }
+      }
+    }
+
+    function importBookmarks() {
+      const fileInput = document.getElementById('bookmark-file');
+      const file = fileInput.files[0];
+      if (!file) { alert('Please select a bookmark file'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(e.target.result, 'text/html');
+        const dl = doc.querySelector('DL');
+        if (!dl) { alert('Could not find bookmarks in the file'); return; }
+        const container = document.getElementById('links-container');
+        container.innerHTML = '';
+        parseBookmarks(dl, container);
+      };
+      reader.readAsText(file);
+    }
+
+    function buildPage(data) {
+      const { isLinkStation, editable, name, bio, initials, theme, items } = data;
+
+      function renderItems(arr, depth) {
+        let links = '', folders = '', hasLinks = false;
+        arr.forEach(item => {
+          if (item.type === 'link') {
+            hasLinks = true;
+            if (isLinkStation) {
+              links += `      <a href="${escapeAttr(item.url)}" class="square" target="_blank">${escapeHtml(item.label)}</a>\n`;
+            } else {
+              links += `      <a href="${escapeAttr(item.url)}" class="link" target="_blank">${escapeHtml(item.label)}</a>\n`;
+            }
+          } else if (item.type === 'folder') {
+            const childHtml = renderItems(item.items, depth + 1);
+            if (childHtml) {
+              if (isLinkStation) {
+                const cls = depth === 0 ? 'folder-label' : 'subfolder-label';
+                if (item.name) folders += `    <div class="${cls}">${escapeHtml(item.name)}</div>\n`;
+                folders += childHtml;
+              } else {
+                if (item.name) folders += `    <h2 class="folder-title">${escapeHtml(item.name)}</h2>\n`;
+                folders += childHtml;
+              }
+            }
+          }
+        });
+        let result = '';
+        if (hasLinks) {
+          if (isLinkStation) result += `    <div class="grid">\n${links}    </div>\n`;
+          else result += `    <div class="links">\n${links}    </div>\n`;
+        }
+        result += folders;
+        return result;
+      }
+
+      let contentHtml = renderItems(items, 0);
+      if (!contentHtml) {
+        if (isLinkStation) contentHtml = `    <div class="grid">\n      <a href="#" class="square" target="_blank">GitHub</a>\n    </div>\n`;
+        else contentHtml = `    <div class="links">\n      <a href="#" class="link" target="_blank">GitHub</a>\n    </div>\n`;
+      }
+
+      const json = JSON.stringify(data).replace(/<\x2Fscript>/gi, '<\\/script>');
+
+      function editorBlock() {
+        return `<!-- Editor -->
+<style>
+  #edit-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:20px; }
+  #edit-overlay.open { display:block; }
+  #edit-panel { max-width:500px; margin:40px auto; background:#1a1a2e; border-radius:16px; padding:32px; color:#fff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+  #edit-panel h2 { margin-bottom:20px; font-size:20px; }
+  #edit-panel label { display:block; font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:4px; }
+  #edit-panel input, #edit-panel textarea { width:100%; padding:10px; margin-bottom:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.08); color:#fff; font-size:14px; font-family:inherit; box-sizing:border-box; }
+  #edit-panel textarea { resize:vertical; min-height:60px; }
+  #edit-items .edit-item { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  #edit-items .edit-item input { flex:1; margin-bottom:0; }
+  #edit-items .edit-item .remove-item { background:rgba(255,80,80,0.2); border:none; color:#ff5050; width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:18px; flex-shrink:0; }
+  .edit-btn-row { display:flex; gap:10px; margin-bottom:16px; }
+  .edit-btn-row button { flex:1; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); cursor:pointer; font-size:13px; font-family:inherit; }
+  .edit-btn-row button:hover { background:rgba(255,255,255,0.1); }
+  #edit-actions { display:flex; gap:12px; margin-top:20px; }
+  #edit-actions button { flex:1; padding:12px; border-radius:10px; border:none; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+  #edit-save { background:#22c55e; color:#fff; }
+  #edit-cancel { background:rgba(255,255,255,0.1); color:#fff; }
+  #edit-export { background:#667eea; color:#fff; }
+  #edit-btn { position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; border:none; background:${theme.from}; color:#fff; font-size:24px; cursor:pointer; z-index:9998; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform .2s; }
+  #edit-btn:hover { transform:scale(1.1); }
+</style>
+<div id="edit-overlay">
+  <div id="edit-panel">
+    <h2>Edit Page</h2>
+    <div id="edit-profile-fields">
+      <label>Name</label>
+      <input id="edit-name" placeholder="Your name">
+      <label>Bio</label>
+      <textarea id="edit-bio" placeholder="Short bio"></textarea>
+      <label>Initials</label>
+      <input id="edit-initials" placeholder="Initials" maxlength="2">
+    </div>
+    <label>Links & Folders</label>
+    <div id="edit-items"></div>
+    <div class="edit-btn-row">
+      <button onclick="addEditLink()">+ Add Link</button>
+      <button onclick="addEditFolder()">+ Add Folder</button>
+    </div>
+    <div id="edit-actions">
+      <button id="edit-save" onclick="saveEditor()">Save</button>
+      <button id="edit-export" onclick="exportHTML()">Export HTML</button>
+      <button id="edit-cancel" onclick="closeEditor()">Cancel</button>
+    </div>
+  </div>
+</div>
+<button id="edit-btn" onclick="openEditor()">&#9881;</button>
+<script>
+var _pageData, _editItems;
+
+function openEditor() {
+  _pageData = JSON.parse(document.getElementById('stationData').textContent);
+  document.getElementById('edit-name').value = _pageData.name || '';
+  document.getElementById('edit-bio').value = _pageData.bio || '';
+  document.getElementById('edit-initials').value = _pageData.initials || '';
+  var pf = document.getElementById('edit-profile-fields');
+  if (pf) pf.style.display = _pageData.isLinkStation ? 'none' : '';
+  _editItems = JSON.parse(JSON.stringify(_pageData.items || []));
+  renderEditItems();
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeEditor() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+function _e(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderEditItems() {
+  var c = document.getElementById('edit-items');
+  c.innerHTML = '';
+  renderEditTree(_editItems, c, []);
+}
+
+function renderEditTree(items, container, path) {
+  items.forEach(function(item, idx) {
+    var currentPath = path.concat([idx]);
+    var pathStr = currentPath.join(',');
+    if (item.type === 'link') {
+      var d = document.createElement('div');
+      d.className = 'edit-item';
+      d.dataset.path = pathStr;
+      d.dataset.type = 'link';
+      d.innerHTML = '<input class="edit-item-label" placeholder="Label" value="'+_e(item.label)+'"><input class="edit-item-url" placeholder="URL" value="'+_e(item.url)+'"><button class="remove-item" onclick="removeEditItemByPath(\\''+pathStr+'\\')">&times;</button>';
+      container.appendChild(d);
+    } else if (item.type === 'folder') {
+      var d = document.createElement('div');
+      d.style.marginBottom = '8px';
+      d.dataset.path = pathStr;
+      d.dataset.type = 'folder';
+      d.innerHTML = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px"><input class="edit-folder-name" placeholder="Folder name" value="'+_e(item.name)+'" style="flex:1"><button class="remove-item" onclick="removeEditItemByPath(\\''+pathStr+'\\')">&times;</button></div><div class="edit-folder-items"></div>';
+      container.appendChild(d);
+      var fc = d.querySelector('.edit-folder-items');
+      renderEditTree(item.items || [], fc, currentPath);
+      var btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:8px;margin-top:4px;';
+      var addLinkBtn = document.createElement('button');
+      addLinkBtn.textContent = '+ Add Link';
+      addLinkBtn.onclick = function() { addEditLinkByPath(pathStr); };
+      addLinkBtn.style.cssText = 'padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);cursor:pointer;font-size:12px;font-family:inherit;';
+      btnRow.appendChild(addLinkBtn);
+      var addFolderBtn = document.createElement('button');
+      addFolderBtn.textContent = '+ Add Subfolder';
+      addFolderBtn.onclick = function() { addEditFolderByPath(pathStr); };
+      addFolderBtn.style.cssText = 'padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);cursor:pointer;font-size:12px;font-family:inherit;';
+      btnRow.appendChild(addFolderBtn);
+      fc.appendChild(btnRow);
+    }
+  });
+}
+
+function removeEditItemByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  if (parts.length === 1) {
+    _editItems.splice(parts[0], 1);
+  } else {
+    var parent = _editItems;
+    for (var i = 0; i < parts.length - 1; i++) {
+      parent = parent[parts[i]].items;
+    }
+    parent.splice(parts[parts.length - 1], 1);
+  }
+  renderEditItems();
+}
+
+function addEditLinkByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  var parent = _editItems;
+  for (var i = 0; i < parts.length; i++) {
+    parent = parent[parts[i]].items;
+  }
+  parent.push({type:'link',label:'',url:''});
+  renderEditItems();
+}
+
+function addEditFolderByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  var parent = _editItems;
+  for (var i = 0; i < parts.length; i++) {
+    parent = parent[parts[i]].items;
+  }
+  parent.push({type:'folder',name:'',items:[]});
+  renderEditItems();
+}
+
+function addEditLink() { _editItems.push({type:'link',label:'',url:''}); renderEditItems(); }
+function addEditFolder() { _editItems.push({type:'folder',name:'',items:[]}); renderEditItems(); }
+
+function saveEditor() {
+  _pageData.name = document.getElementById('edit-name').value.trim();
+  _pageData.bio = document.getElementById('edit-bio').value.trim();
+  _pageData.initials = document.getElementById('edit-initials').value.trim();
+  _pageData.items = collectEditItems(document.getElementById('edit-items'));
+  var json = JSON.stringify(_pageData).replace(/<\\/script>/gi,'<\\\\/script>');
+  document.getElementById('stationData').textContent = json;
+  rebuildPage(_pageData);
+  closeEditor();
+}
+
+function collectEditItems(container) {
+  var items = [];
+  for (var i = 0; i < container.children.length; i++) {
+    var child = container.children[i];
+    var type = child.dataset.type;
+    if (!type) continue;
+    if (type === 'link') {
+      var label = child.querySelector('.edit-item-label').value.trim();
+      var url = child.querySelector('.edit-item-url').value.trim();
+      if (label || url) items.push({type:'link',label:label,url:url});
+    } else if (type === 'folder') {
+      var name = child.querySelector('.edit-folder-name').value.trim();
+      var fc = child.querySelector('.edit-folder-items');
+      var children = collectEditItems(fc);
+      items.push({type:'folder',name:name,items:children});
+    }
+  }
+  return items;
+}
+
+function exportHTML() {
+  saveEditor();
+  setTimeout(function() {
+    function buildNetscape(items) {
+      var html = '';
+      items.forEach(function(item) {
+        if (item.type === 'link' && item.label && item.url) {
+          html += '    <DT><A HREF="' + _e(item.url) + '">' + _e(item.label) + '</A>\\n';
+        } else if (item.type === 'folder' && item.name) {
+          html += '    <DT><H3>' + _e(item.name) + '</H3>\\n';
+          html += '    <DL><p>\\n';
+          html += buildNetscape(item.items || []);
+          html += '    </DL><p>\\n';
+        }
+      });
+      return html;
+    }
+    var data = JSON.parse(document.getElementById('stationData').textContent);
+    var bookmarkHtml = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\\n'
+      + '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\\n'
+      + '<TITLE>Bookmarks</TITLE>\\n'
+      + '<H1>Bookmarks</H1>\\n'
+      + '<DL><p>\\n'
+      + buildNetscape(data.items || [])
+      + '</DL><p>\\n';
+    var blob = new Blob([bookmarkHtml], {type: 'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bookmarks.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }, 100);
+}
+
+function rebuildPage(d) {
+  var items = d.items || [];
+  var isLS = d.isLinkStation;
+  if (isLS && typeof _lsData !== 'undefined') {
+    _lsData = d;
+    _lsPath = [];
+    _lsRender();
+    return;
+  }
+  function render(arr, depth) {
+    var links = '', folders = '', hasL = false;
+    arr.forEach(function(item) {
+      if (item.type === 'link' && item.label && item.url) {
+        hasL = true;
+        links += '<a href="'+_e(item.url)+'" class="link" target="_blank">'+_e(item.label)+'</a>';
+      } else if (item.type === 'folder' && item.name) {
+        var ch = render(item.items || [], depth+1);
+        if (ch) {
+          folders += '<h2 class="folder-title">'+_e(item.name)+'</h2>';
+          folders += ch;
+        }
+      }
+    });
+    var r = '';
+    if (hasL) r += '<div class="links">'+links+'</div>';
+    r += folders;
+    return r;
+  }
+  var content = render(items, 0);
+  if (!content) content = '<div class="links"><a href="#" class="link" target="_blank">GitHub</a></div>';
+  var el = document.getElementById('station-content');
+  if (el) {
+    el.innerHTML = '<div class="card">'
+      + '<div class="avatar" style="background:linear-gradient(135deg,'+d.theme.from+','+d.theme.to+')">'+_e(d.initials||'LS')+'</div>'
+      + '<h1>'+_e(d.name||'Link Station')+'</h1>'
+      + '<p class="bio">'+_e(d.bio||'')+'</p>'
+      + content
+      + '<p class="footer">Link Station</p>'
+      + '</div>';
+  }
+}
+<\/script>`;
+      }
+
+      const editableBlock = editable ? editorBlock() : '';
+
+      if (isLinkStation) {
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Station</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh; padding: 30px;
+    }
+    .app-wrapper { max-width: 1400px; margin: 0 auto; }
+    h1 { color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .subtitle { color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 28px; }
+    .category-title { color: rgba(255,255,255,0.35); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; grid-column: 1 / -1; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 44px; }
+    .square { display: flex; align-items: center; justify-content: center; text-align: center; padding: 18px 14px; min-height: 110px; border-radius: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none; font-size: 16px; font-weight: 500; transition: all .2s; cursor:pointer; word-break: break-word; }
+    .square:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); transform: scale(1.04); }
+    .folder-square { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); flex-direction: column; gap: 8px; font-size: 16px; font-weight: 600; min-height: 110px; }
+    .folder-square:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+    .folder-icon { font-size: 32px; }
+    .back-btn { display:flex; align-items:center; justify-content:center; gap:10px; grid-column:1/-1; padding:14px; border-radius:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#fff; text-decoration:none; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:inherit; }
+    .back-btn:hover { background:rgba(255,255,255,0.08); }
+    @media (max-width: 600px) { body { padding:16px; } .grid { grid-template-columns:repeat(2,1fr); gap:12px; } .square { font-size:14px; min-height:90px; } }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <h1>Link Station</h1>
+  <p class="subtitle">All your links in one place</p>
+  <div id="station-content"></div>
+</div>
+<script id="stationData" type="application/json">${json}<\/script>
+<script>
+var _lsData = JSON.parse(document.getElementById('stationData').textContent);
+var _lsPath = [];
+function _e(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _lsRender() {
+  var items = _lsData.items;
+  var pathTrace = [];
+  for (var i = 0; i < _lsPath.length; i++) {
+    pathTrace.push(items[_lsPath[i]].name);
+    items = items[_lsPath[i]].items || [];
+  }
+  var html = '';
+  if (_lsPath.length > 0) {
+    html += '<button class="back-btn" onclick="_lsBack()">← Back to ' + (_lsPath.length > 1 ? pathTrace[_lsPath.length-2] : 'All') + '</button>';
+  }
+  items.forEach(function(item, i) {
+    if (item.type === 'link' && item.label && item.url) {
+      html += '<a href="'+_e(item.url)+'" class="square" target="_blank">'+_e(item.label)+'</a>';
+    } else if (item.type === 'folder' && item.name && item.items && item.items.length) {
+      html += '<div class="square folder-square" onclick="_lsNav('+i+')"><div class="folder-icon">📁</div>'+_e(item.name)+'</div>';
+    }
+  });
+  document.getElementById('station-content').innerHTML = '<div class="grid">'+html+'</div>';
+}
+function _lsNav(i) { _lsPath.push(i); _lsRender(); }
+function _lsBack() { _lsPath.pop(); _lsRender(); }
+_lsRender();
+<\/script>
+${editableBlock}
+</body>
+</html>`;
+      } else {
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(name)} | Link Station</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 48px 40px; max-width: 420px; width: 100%; text-align: center; }
+    .avatar { width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg, ${theme.from}, ${theme.to}); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white; font-weight: 700; }
+    h1 { color: #fff; font-size: 24px; margin-bottom: 4px; }
+    .bio { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 28px; }
+    .folder-title { color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; margin-bottom: 8px; text-align: left; }
+    .links { display: flex; flex-direction: column; gap: 12px; }
+    .link { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border-radius: 12px; background: rgba(255,255,255,0.08); color: #fff; text-decoration: none; font-size: 15px; font-weight: 500; transition: all .2s; border: 1px solid transparent; }
+    .link:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.15); transform: translateY(-1px); }
+    .footer { margin-top: 24px; color: rgba(255,255,255,0.3); font-size: 12px; }
+  </style>
+</head>
+<body>
+<div id="station-content">
+  <div class="card">
+    <div class="avatar">${escapeHtml(initials)}</div>
+    <h1>${escapeHtml(name)}</h1>
+    <p class="bio">${escapeHtml(bio)}</p>
+${contentHtml}    <p class="footer">Link Station</p>
+  </div>
+</div>
+<script id="stationData" type="application/json">${json}<\/script>
+${editableBlock}
+</body>
+</html>`;
+      }
+    }
+
+    function generate() {
+      const isLinkStation = document.getElementById('mode-toggle').checked;
+      const editable = document.getElementById('editor-toggle').checked;
+      const name = document.getElementById('name').value || 'Link Station';
+      const bio = document.getElementById('bio').value || '';
+      const initials = document.getElementById('initials').value || getInitials(name) || 'LS';
+      const container = document.getElementById('links-container');
+      const items = collectData(container);
+      generatedHTML = buildPage({ isLinkStation, editable, name, bio, initials, theme: currentTheme, items });
+      const preview = document.getElementById('preview');
+      preview.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(generatedHTML);
+      document.getElementById('preview-area').classList.add('show');
+      document.getElementById('preview-area').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function downloadHTML() {
+      const blob = new Blob([generatedHTML], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'link-station.html';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
+</body>
+</html>

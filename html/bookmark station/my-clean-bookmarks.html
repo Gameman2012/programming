@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Station</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh; padding: 30px;
+    }
+    .app-wrapper {
+      max-width: 1400px; margin: 0 auto;
+    }
+    h1 {
+      color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 6px;
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 28px;
+    }
+    .category-title {
+      color: rgba(255,255,255,0.35); font-size: 13px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 16px; grid-column: 1 / -1;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 44px;
+    }
+    .square {
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 18px 14px; min-height: 110px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; text-decoration: none;
+      font-size: 16px; font-weight: 500;
+      transition: all .2s; cursor:pointer;
+      word-break: break-word;
+    }
+    .square:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+      transform: scale(1.04);
+    }
+    .folder-square {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.08);
+      flex-direction: column; gap: 8px;
+      font-size: 16px; font-weight: 600; min-height: 110px;
+    }
+    .folder-square:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .folder-icon { font-size: 32px; }
+    .back-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px; border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff; text-decoration: none;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      transition: all .2s; font-family: inherit;
+      grid-column: 1 / -1;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.08); }
+
+    @media (max-width: 600px) {
+      body { padding: 16px; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .square { font-size: 14px; min-height: 90px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <h1>Bookmarks</h1>
+  <p class="subtitle">All your links in one place</p>
+  <div id="station-content"></div>
+</div>
+<script id="stationData" type="application/json">{"isLinkStation":true,"editable":true,"name":"Link Station","bio":"All my important links in one place","initials":"LS","theme":{"from":"#667eea","to":"#764ba2"},"items":[{"type":"folder","name":"tools","items":[{"type":"link","label":"Linktree (إدارة الروابط)","url":"https://linktr.ee/admin"},{"type":"link","label":"GitHub Codespaces","url":"https://ubiquitous-space-memory-5g547wxjv97c59g.github.dev/?autoStart=true&folder=%2Fworkspaces%2F157351626&vscodeChannel=stable"},{"type":"link","label":"Hyper3D (صور → 3D)","url":"https://hyper3d.ai/tools/image-to-3d?gad_source=2&gad_campaignid=21775292367&gclid=Cj0KCQjwlLDQBhDjARIsAPlIefECfcPXBL7KLdqjYvkVVqSxC64bl6LPRomMjftsjp6oIRyz1HEVk20aAhMPEALw_wcB"},{"type":"link","label":"التنزيلات","url":"vivaldi://downloads/"},{"type":"link","label":"Wayin AI (تلخيص)","url":"https://wayin.ai/"},{"type":"link","label":"Netlify Drop (نشر مواقع)","url":"https://app.netlify.com/drop"},{"type":"link","label":"OnlineOCR (نص من صور)","url":"https://www.onlineocr.net/"},{"type":"link","label":"Wispr Flow (كتابة صوتية)","url":"https://wisprflow.ai/"},{"type":"link","label":"Convert (تحويل ملفات)","url":"https://p2r3.github.io/convert/"},{"type":"link","label":"ImageToText (نص → Word)","url":"https://www.imagetotext.io/text-to-word"},{"type":"link","label":"Edraw AI (مخططات)","url":"https://www.edraw.ai/app"},{"type":"link","label":"Flaticon (أيقونات)","url":"https://www.flaticon.com/"},{"type":"link","label":"PixilArt (رسم بكسل)","url":"https://www.pixilart.com/"},{"type":"link","label":"SaveFrom (تنزيل فيديو)","url":"https://ar.savefrom.net/250rm/"},{"type":"folder","name":"pdf","items":[{"type":"link","label":"Adobe PDF (تحرير)","url":"https://www.adobe.com/acrobat/online.html"},{"type":"link","label":"ILovePDF (أدوات)","url":"https://www.ilovepdf.com/ar"},{"type":"link","label":"UPDF (PDF ذكي)","url":"https://updf.com/ar/?srsltid=AfmBOorGJXv0g8vUdLEfhDWZh8pYtRFAFFqXuanrPKekH7ZI73YoIKRp"},{"type":"link","label":"SmallPDF (أدوات)","url":"https://smallpdf.com/ar#r=app"}]},{"type":"folder","name":"برمجة","items":[{"type":"link","label":"Blockly Games (برمجة)","url":"https://blockly.games/?lang=ar"},{"type":"link","label":"BitsNPixels (برمجة)","url":"https://bitsnpixels.io/"},{"type":"link","label":"Boot.dev (برمجة)","url":"https://www.boot.dev/"}]},{"type":"folder","name":"video","items":[{"type":"link","label":"Clideo (تحرير فيديو)","url":"https://clideo.com/"},{"type":"link","label":"Kapwing (تحرير)","url":"https://www.kapwing.com/"},{"type":"link","label":"CapCut (تحرير فيديو)","url":"https://www.capcut.com/"},{"type":"link","label":"Clipchamp (تحرير فيديو)","url":"https://app.clipchamp.com/"},{"type":"link","label":"VideoCandy (فيديوهات)","url":"https://videocandy.com/"}]},{"type":"folder","name":"systems","items":[{"type":"link","label":"WinWorldPC (أنظمة قديمة)","url":"https://winworldpc.com/library/operating-systems"},{"type":"link","label":"F-Droid (أوامر لينكس)","url":"https://f-droid.org/packages/com.inspiredandroid.linuxcommandbibliotheca/"},{"type":"link","label":"MassGrave (تفعيل)","url":"https://massgrave.dev/"},{"type":"link","label":"Archive.org","url":"https://archive.org/"},{"type":"link","label":"Reddit (إلهام لينكس)","url":"https://www.reddit.com/r/unixporn/comments/1s2u31s/niri_i_found_out_niri_has_glsl_support_for/"},{"type":"link","label":"Arch Wiki","url":"https://wiki.archlinux.org/title/Main_page"},{"type":"link","label":"rEFInd (ثيمات إقلاع)","url":"https://refind-themes-collection.netlify.app/"}]},{"type":"folder","name":"audio","items":[{"type":"link","label":"Audacity (تسجيل صوت)","url":"https://www.audacityteam.org/"},{"type":"link","label":"Freesound (مؤثرات صوتية)","url":"https://freesound.org/"},{"type":"link","label":"Vocal Remover (عزل الصوت)","url":"https://vocalremover.org/ar/"}]}]},{"type":"folder","name":"ai","items":[{"type":"link","label":"Character AI (شخصيات ذكية)","url":"https://character.ai/"},{"type":"link","label":"Verdent AI","url":"https://www.verdent.ai/?id=700634"},{"type":"link","label":"Gamma (عروض تقديمية)","url":"https://gamma.app/"},{"type":"link","label":"higgsfield (ميديا)","url":"https://higgsfield.ai/"},{"type":"link","label":"Atoms (منتجات رقمية)","url":"https://atoms.dev/ar"},{"type":"link","label":"Google Gemini","url":"https://gemini.google.com/"},{"type":"link","label":"DeepSeek","url":"https://chat.deepseek.com/"},{"type":"link","label":"ChatGPT","url":"https://chatgpt.com/"},{"type":"link","label":"Thaura AI","url":"https://thaura.ai/"},{"type":"link","label":"Microsoft Copilot","url":"https://copilot.microsoft.com/"},{"type":"link","label":"xAI Grok","url":"https://grok.com/"},{"type":"link","label":"Claude AI","url":"https://claude.ai/new"},{"type":"link","label":"ChatOn (بوتات متخصصة)","url":"https://chat.chaton.ai/my/main"},{"type":"link","label":"GenSpark (بحث ذكي)","url":"https://www.genspark.ai/ar"},{"type":"link","label":"TeraBox AI Tools","url":"https://www.terabox.com/ai/index/arabic"},{"type":"link","label":"Dreamina (فيديو AI)","url":"https://dreamina.capcut.com/ai-tool/home?type=video&model=dreamina_seedance_40_pro"},{"type":"link","label":"TinyWow (أدوات AI)","url":"https://tinywow.com/"},{"type":"link","label":"NotebookLM (دراسة)","url":"https://notebooklm.google.com/"}]},{"type":"folder","name":"notes","items":[{"type":"link","label":"Google Keep","url":"https://keep.google.com/"},{"type":"link","label":"Pomofocus (إضافة متصفح)","url":"https://chromewebstore.google.com/detail/pomofocus/jikfcblkfndeaicenmeajicfanlmiokm"},{"type":"link","label":"Pomofocus (مؤقت + مهام)","url":"https://pomofocus.io/app"},{"type":"link","label":"Todoist (مهام + تحليل)","url":"chrome-extension://ngceodoilcgpmkijopinlkmohnfifjfb/WebContent/index.html"},{"type":"link","label":"مهام","url":"https://www.notion.so/6b6c325d400383bdad0d01701d0920ce"}]}]}</script>
+<script>
+var _lsData = JSON.parse(document.getElementById('stationData').textContent);
+var _lsPath = [];
+function _e(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _lsRender() {
+  var items = _lsData.items;
+  var pathTrace = [];
+  for (var i = 0; i < _lsPath.length; i++) {
+    pathTrace.push(items[_lsPath[i]].name);
+    items = items[_lsPath[i]].items || [];
+  }
+  var html = '';
+  if (_lsPath.length > 0) {
+    html += '<button class="back-btn" onclick="_lsBack()">← Back to ' + (_lsPath.length > 1 ? pathTrace[_lsPath.length-2] : 'All') + '</button>';
+  }
+  var currentFolder = _lsPath.length > 0 ? pathTrace[_lsPath.length-1] : null;
+  if (currentFolder) {
+    html += '<div class="category-title">' + _e(currentFolder) + '</div>';
+  }
+  items.forEach(function(item, i) {
+    if (item.type === 'link' && item.label && item.url) {
+      html += '<a href="'+_e(item.url)+'" class="square" target="_blank">'+_e(item.label)+'</a>';
+    } else if (item.type === 'folder' && item.name && item.items && item.items.length) {
+      html += '<div class="square folder-square" onclick="_lsNav('+i+')"><div class="folder-icon">📁</div>'+_e(item.name)+'</div>';
+    }
+  });
+  if (_lsPath.length === 0) {
+    document.getElementById('station-content').innerHTML = html;
+  } else {
+    document.getElementById('station-content').innerHTML = '<div class="grid">'+html+'</div>';
+  }
+}
+function _lsNav(i) { _lsPath.push(i); _lsRender(); }
+function _lsBack() { _lsPath.pop(); _lsRender(); }
+_lsRender();
+</script>
+<!-- Editor -->
+<style>
+  #edit-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; padding:20px; }
+  #edit-overlay.open { display:block; }
+  #edit-panel { max-width:600px; margin:40px auto; background:#1a1a2e; border-radius:16px; padding:32px; color:#fff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+  #edit-panel h2 { margin-bottom:20px; font-size:20px; }
+  #edit-panel label { display:block; font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:4px; }
+  #edit-panel input, #edit-panel textarea { width:100%; padding:10px; margin-bottom:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.08); color:#fff; font-size:14px; font-family:inherit; box-sizing:border-box; }
+  #edit-panel textarea { resize:vertical; min-height:60px; }
+  #edit-items .edit-item { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  #edit-items .edit-item input { flex:1; margin-bottom:0; }
+  #edit-items .edit-item .remove-item { background:rgba(255,80,80,0.2); border:none; color:#ff5050; width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:18px; flex-shrink:0; }
+  .edit-btn-row { display:flex; gap:10px; margin-bottom:16px; }
+  .edit-btn-row button { flex:1; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); cursor:pointer; font-size:13px; font-family:inherit; }
+  .edit-btn-row button:hover { background:rgba(255,255,255,0.1); }
+  #edit-actions { display:flex; gap:12px; margin-top:20px; }
+  #edit-actions button { flex:1; padding:12px; border-radius:10px; border:none; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+  #edit-save { background:#22c55e; color:#fff; }
+  #edit-cancel { background:rgba(255,255,255,0.1); color:#fff; }
+  #edit-export { background:#667eea; color:#fff; }
+  #edit-btn { position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; border:none; background:#667eea; color:#fff; font-size:24px; cursor:pointer; z-index:9998; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform .2s; }
+  #edit-btn:hover { transform:scale(1.1); }
+</style>
+<div id="edit-overlay">
+  <div id="edit-panel">
+    <h2>Edit Page</h2>
+    <div id="edit-profile-fields">
+      <label>Name</label>
+      <input id="edit-name" placeholder="Your name">
+      <label>Bio</label>
+      <textarea id="edit-bio" placeholder="Short bio"></textarea>
+      <label>Initials</label>
+      <input id="edit-initials" placeholder="Initials" maxlength="2">
+    </div>
+    <label>Links & Folders</label>
+    <div id="edit-items"></div>
+    <div class="edit-btn-row">
+      <button onclick="addEditLink()">+ Add Link</button>
+      <button onclick="addEditFolder()">+ Add Folder</button>
+    </div>
+    <div id="edit-actions">
+      <button id="edit-save" onclick="saveEditor()">Save</button>
+      <button id="edit-export" onclick="exportHTML()">Export HTML</button>
+      <button id="edit-cancel" onclick="closeEditor()">Cancel</button>
+    </div>
+  </div>
+</div>
+<button id="edit-btn" onclick="openEditor()">&#9881;</button>
+<script>
+var _pageData, _editItems;
+
+function openEditor() {
+  _pageData = JSON.parse(document.getElementById('stationData').textContent);
+  document.getElementById('edit-name').value = _pageData.name || '';
+  document.getElementById('edit-bio').value = _pageData.bio || '';
+  document.getElementById('edit-initials').value = _pageData.initials || '';
+  var pf = document.getElementById('edit-profile-fields');
+  if (pf) pf.style.display = _pageData.isLinkStation ? 'none' : '';
+  _editItems = JSON.parse(JSON.stringify(_pageData.items || []));
+  renderEditItems();
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeEditor() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+function _e(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderEditItems() {
+  var c = document.getElementById('edit-items');
+  c.innerHTML = '';
+  renderEditTree(_editItems, c, []);
+}
+
+function renderEditTree(items, container, path) {
+  items.forEach(function(item, idx) {
+    var currentPath = path.concat([idx]);
+    var pathStr = currentPath.join(',');
+    if (item.type === 'link') {
+      var d = document.createElement('div');
+      d.className = 'edit-item';
+      d.dataset.path = pathStr;
+      d.dataset.type = 'link';
+      d.innerHTML = '<input class="edit-item-label" placeholder="Label" value="'+_e(item.label)+'"><input class="edit-item-url" placeholder="URL" value="'+_e(item.url)+'"><button class="remove-item" onclick="removeEditItemByPath(\''+pathStr+'\')">&times;</button>';
+      container.appendChild(d);
+    } else if (item.type === 'folder') {
+      var d = document.createElement('div');
+      d.style.marginBottom = '8px';
+      d.dataset.path = pathStr;
+      d.dataset.type = 'folder';
+      d.innerHTML = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px"><input class="edit-folder-name" placeholder="Folder name" value="'+_e(item.name)+'" style="flex:1"><button class="remove-item" onclick="removeEditItemByPath(\''+pathStr+'\')">&times;</button></div><div class="edit-folder-items"></div>';
+      container.appendChild(d);
+      var fc = d.querySelector('.edit-folder-items');
+      renderEditTree(item.items || [], fc, currentPath);
+      var btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:8px;margin-top:4px;';
+      var addLinkBtn = document.createElement('button');
+      addLinkBtn.textContent = '+ Add Link';
+      addLinkBtn.onclick = function() { addEditLinkByPath(pathStr); };
+      addLinkBtn.style.cssText = 'padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);cursor:pointer;font-size:12px;font-family:inherit;';
+      btnRow.appendChild(addLinkBtn);
+      var addFolderBtn = document.createElement('button');
+      addFolderBtn.textContent = '+ Add Subfolder';
+      addFolderBtn.onclick = function() { addEditFolderByPath(pathStr); };
+      addFolderBtn.style.cssText = 'padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);cursor:pointer;font-size:12px;font-family:inherit;';
+      btnRow.appendChild(addFolderBtn);
+      fc.appendChild(btnRow);
+    }
+  });
+}
+
+function removeEditItemByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  if (parts.length === 1) {
+    _editItems.splice(parts[0], 1);
+  } else {
+    var parent = _editItems;
+    for (var i = 0; i < parts.length - 1; i++) {
+      parent = parent[parts[i]].items;
+    }
+    parent.splice(parts[parts.length - 1], 1);
+  }
+  renderEditItems();
+}
+
+function addEditLinkByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  var parent = _editItems;
+  for (var i = 0; i < parts.length; i++) {
+    parent = parent[parts[i]].items;
+  }
+  parent.push({type:'link',label:'',url:''});
+  renderEditItems();
+}
+
+function addEditFolderByPath(pathStr) {
+  var parts = pathStr.split(',').map(Number);
+  var parent = _editItems;
+  for (var i = 0; i < parts.length; i++) {
+    parent = parent[parts[i]].items;
+  }
+  parent.push({type:'folder',name:'',items:[]});
+  renderEditItems();
+}
+
+function addEditLink() { _editItems.push({type:'link',label:'',url:''}); renderEditItems(); }
+function addEditFolder() { _editItems.push({type:'folder',name:'',items:[]}); renderEditItems(); }
+
+function saveEditor() {
+  _pageData.name = document.getElementById('edit-name').value.trim();
+  _pageData.bio = document.getElementById('edit-bio').value.trim();
+  _pageData.initials = document.getElementById('edit-initials').value.trim();
+  _pageData.items = collectEditItems(document.getElementById('edit-items'));
+  var json = JSON.stringify(_pageData).replace(/<\/script>/gi,'<\\/script>');
+  document.getElementById('stationData').textContent = json;
+  rebuildPage(_pageData);
+  closeEditor();
+}
+
+function collectEditItems(container) {
+  var items = [];
+  for (var i = 0; i < container.children.length; i++) {
+    var child = container.children[i];
+    var type = child.dataset.type;
+    if (!type) continue;
+    if (type === 'link') {
+      var label = child.querySelector('.edit-item-label').value.trim();
+      var url = child.querySelector('.edit-item-url').value.trim();
+      if (label || url) items.push({type:'link',label:label,url:url});
+    } else if (type === 'folder') {
+      var name = child.querySelector('.edit-folder-name').value.trim();
+      var fc = child.querySelector('.edit-folder-items');
+      var children = collectEditItems(fc);
+      items.push({type:'folder',name:name,items:children});
+    }
+  }
+  return items;
+}
+
+function exportHTML() {
+  saveEditor();
+  setTimeout(function() {
+    function buildNetscape(items) {
+      var html = '';
+      items.forEach(function(item) {
+        if (item.type === 'link' && item.label && item.url) {
+          html += '    <DT><A HREF="' + _e(item.url) + '">' + _e(item.label) + '</A>\n';
+        } else if (item.type === 'folder' && item.name) {
+          html += '    <DT><H3>' + _e(item.name) + '</H3>\n';
+          html += '    <DL><p>\n';
+          html += buildNetscape(item.items || []);
+          html += '    </DL><p>\n';
+        }
+      });
+      return html;
+    }
+    var data = JSON.parse(document.getElementById('stationData').textContent);
+    var bookmarkHtml = '<!DOCTYPE NETSCAPE-Bookmark-file-1>\n'
+      + '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">\n'
+      + '<TITLE>Bookmarks</TITLE>\n'
+      + '<H1>Bookmarks</H1>\n'
+      + '<DL><p>\n'
+      + buildNetscape(data.items || [])
+      + '</DL><p>\n';
+    var blob = new Blob([bookmarkHtml], {type: 'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bookmarks.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }, 100);
+}
+
+function rebuildPage(d) {
+  var items = d.items || [];
+  var isLS = d.isLinkStation;
+  if (isLS && typeof _lsData !== 'undefined') {
+    _lsData = d;
+    _lsPath = [];
+    _lsRender();
+    return;
+  }
+  function render(arr, depth) {
+    var links = '', folders = '', hasL = false;
+    arr.forEach(function(item) {
+      if (item.type === 'link' && item.label && item.url) {
+        hasL = true;
+        links += '<a href="'+_e(item.url)+'" class="link" target="_blank">'+_e(item.label)+'</a>';
+      } else if (item.type === 'folder' && item.name) {
+        var ch = render(item.items || [], depth+1);
+        if (ch) {
+          folders += '<h2 class="folder-title">'+_e(item.name)+'</h2>';
+          folders += ch;
+        }
+      }
+    });
+    var r = '';
+    if (hasL) r += '<div class="links">'+links+'</div>';
+    r += folders;
+    return r;
+  }
+  var content = render(items, 0);
+  if (!content) content = '<div class="links"><a href="#" class="link" target="_blank">GitHub</a></div>';
+  var el = document.getElementById('station-content');
+  if (el) {
+    el.innerHTML = '<div class="card">'
+      + '<div class="avatar" style="background:linear-gradient(135deg,'+d.theme.from+','+d.theme.to+')">'+_e(d.initials||'LS')+'</div>'
+      + '<h1>'+_e(d.name||'Link Station')+'</h1>'
+      + '<p class="bio">'+_e(d.bio||'')+'</p>'
+      + content
+      + '<p class="footer">Link Station</p>'
+      + '</div>';
+  }
+}
+</script>
+</body>
+</html>

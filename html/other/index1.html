@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>محمود</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0f0f0f;
+      color: #e4e4e4;
+      line-height: 1.6;
+    }
+
+    a {
+      color: #22B5BF;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #40d0db;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1f1f1f;
+    }
+
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+    }
+
+    nav .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.75rem;
+    }
+
+    nav ul a {
+      font-size: 0.9rem;
+      color: #a0a0a0;
+    }
+
+    nav ul a:hover {
+      color: #fff;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      padding-top: 60px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero h1 span {
+      color: #22B5BF;
+    }
+
+    .hero .tagline {
+      font-size: 1.2rem;
+      color: #888;
+      margin-bottom: 2rem;
+    }
+
+    .hero .tagline span {
+      color: #22B5BF;
+      font-weight: 700;
+    }
+
+    .hero .cta {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background: #22B5BF;
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .hero .cta:hover {
+      background: #1b9aa3;
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    section {
+      padding: 5rem 0;
+    }
+
+    section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .about p {
+      max-width: 650px;
+      margin: 0 auto;
+      text-align: center;
+      color: #aaa;
+      font-size: 1.1rem;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+
+    .skill-tag {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      font-weight: 500;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .skill-tag:hover {
+      border-color: #22B5BF;
+      background: #1a2a2b;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .project-card:hover {
+      border-color: #22B5BF;
+      transform: translateY(-4px);
+    }
+
+    .project-card h3 {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-card p {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .project-card .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .project-card .tags span {
+      background: #2a2a2a;
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    .contact {
+      text-align: center;
+    }
+
+    .contact p {
+      color: #aaa;
+      margin-bottom: 1.5rem;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      color: #ccc;
+      font-weight: 500;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .social-links a:hover {
+      border-color: #22B5BF;
+      background: #1a2a2b;
+      color: #fff;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      border-top: 1px solid #1f1f1f;
+      color: #555;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+
+      nav ul {
+        gap: 1rem;
+      }
+
+      nav ul a {
+        font-size: 0.8rem;
+      }
+
+      .social-links {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <span class="logo">محمود</span>
+      <ul>
+        <li><a href="#about">عنّي</a></li>
+        <li><a href="#skills">المهارات</a></li>
+        <li><a href="#projects">المشاريع</a></li>
+        <li><a href="#contact">تواصل</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <h1>مرحباً، أنا <span>محمود</span></h1>
+      <p class="tagline">أخصائي <span>TICK</span> متوسط المستوى</p>
+      <a href="#projects" class="cta">اطّلع على أعمالي</a>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <div class="container">
+      <h2>عنّي</h2>
+      <p>
+        أخصائي TICK متوسط المستوى مع خبرة عملية في أنظمة Linux،
+        وProxmox، والأنظمة المدمجة باستخدام ESP32 و C++.
+        أبني خطوط بيانات، وأراقب البنية التحتية، وأربط الأجهزة
+        من الحساس إلى الشاشة.
+      </p>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="container">
+      <h2>المهارات</h2>
+      <div class="skills-grid">
+        <div class="skill-tag">Linux</div>
+        <div class="skill-tag">Python</div>
+        <div class="skill-tag">HTML</div>
+        <div class="skill-tag">C++</div>
+        <div class="skill-tag">ESP32</div>
+        <div class="skill-tag">Proxmox servers &amp; connections</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="container">
+      <h2>المشاريع</h2>
+      <div class="projects-grid">
+        <!--
+        <div class="project-card">
+          <h3>اسم المشروع</h3>
+          <p>وصف مختصر للمشروع.</p>
+          <div class="tags">
+            <span>وسم1</span>
+            <span>وسم2</span>
+            <span>وسم3</span>
+          </div>
+        </div>
+        -->
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2>تواصل معي</h2>
+      <p>لا تتردد في التواصل — أنا دائماً منفتح لفرص جديدة.</p>
+      <div class="social-links">
+        <a href="mailto:mahmudashrafibrahim1@gmail.com">&#9993; البريد</a>
+        <a href="https://github.com/Gameman2012" target="_blank" rel="noopener">&#128279; GitHub</a>
+        <a href="https://www.linkedin.com/in/mahmoud-ashraf-ibrahim-784489413/" target="_blank" rel="noopener">&#128279; LinkedIn</a>
+        <a href="https://linktr.ee/mahmoudashrafibrahim1" target="_blank" rel="noopener">&#128279; Linktree</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      &copy; 2026 محمود
+    </div>
+  </footer>
+</body>
+</html>

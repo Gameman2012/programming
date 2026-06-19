@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# ===== إعدادات الاختصارات =====
+# الاختصار الرئيسي (Enter فارغ) - الرابط الذي يفتح عند الضغط على Enter بدون كتابة شيء
+MAIN_SHORTCUT="https://gemini.google.com"
+
+# الاختصار الثانوي (مسافة + Enter) - الرابط الذي يفتح عند كتابة مسافة ثم Enter
+SECONDARY_SHORTCUT="https://www.google.com"
+
+# اختصارات الأرقام (1, 2, 3, ...) - روابط سريعة
+declare -A NUM_SHORTCUTS
+NUM_SHORTCUTS[1]="https://www.youtube.com"
+NUM_SHORTCUTS[2]="https://github.com"
+NUM_SHORTCUTS[3]="https://chatgpt.com"
+NUM_SHORTCUTS[4]="https://translate.google.com"
+# NUM_SHORTCUTS[5]="https://..."  # أضف المزيد من هنا
+# ================================
+
+get_url() {
+    local file="$1"
+    local mime=$(file --mime-type -b "$file" 2>/dev/null)
+
+    case "$mime" in
+        text/html*|application/xhtml*)
+            echo "file://$file"
+            return
+            ;;
+        application/x-url*|application/internet-shortcut*)
+            grep -i '^URL=' "$file" | head -1 | cut -d= -f2-
+            return
+            ;;
+    esac
+
+    head -1 "$file" | tr -d '\r\n'
+}
+
+is_url() {
+    local s="$1"
+    [[ "$s" =~ ^https?:// ]] && return 0
+    [[ "$s" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(/|$) ]] && return 0
+    return 1
+}
+
+open_url() {
+    local url="$1"
+    if [[ "$url" =~ youtube\.com|youtu\.be ]]; then
+        zenity --question --title="YouTube Link" --text="فتح الرابط في mpv؟" --ok-label="mpv" --cancel-label="المتصفح" 2>/dev/null
+        if [ $? -eq 0 ]; then
+            exec mpv "$url"
+        fi
+    fi
+    /usr/bin/chromium --app="$url"
+}
+
+if [ $# -ge 1 ] && [ -f "$1" ]; then
+    URL=$(get_url "$1")
+    if [ -n "$URL" ]; then
+        open_url "$URL"
+    fi
+else
+    INPUT=$(zenity --entry --title="فتح موقع كـ تطبيق" --text="أدخل رابط أو كلمة بحث:" 2>/dev/null)
+    if [ $? -eq 1 ]; then
+        exit 0
+    fi
+    if [ -z "$INPUT" ]; then
+        /usr/bin/chromium --app="$MAIN_SHORTCUT"
+    elif [ "$INPUT" = " " ]; then
+        /usr/bin/chromium --app="$SECONDARY_SHORTCUT"
+    elif [[ "$INPUT" =~ ^[0-9]+$ ]] && [ -n "${NUM_SHORTCUTS[$INPUT]}" ]; then
+        /usr/bin/chromium --app="${NUM_SHORTCUTS[$INPUT]}"
+    elif is_url "$INPUT"; then
+        [[ "$INPUT" =~ ^https?:// ]] || INPUT="https://$INPUT"
+        open_url "$INPUT"
+    else
+        /usr/bin/chromium --app="https://www.google.com/search?q=$(echo "$INPUT" | sed 's/ /+/g')"
+    fi
+fi

@@ -1,0 +1,245 @@
+/storage
+├── $RECYCLE.BIN
+├── mahmoud
+│   ├── Backup-codes-mahmoudashrafibrahim1.txt.bak
+│   ├── Downloads
+│   │   └── Telegram Desktop
+│   │       └── files_list.txt
+│   ├── meadia
+│   │   ├── links
+│   │   │   ├── esp32.txt
+│   │   │   ├── py.txt
+│   │   │   └── اشتغل.txt
+│   │   ├── pdf
+│   │   │   ├── paperknife-merged.pdf
+│   │   │   ├── العروض
+│   │   │   ├── ملخص_قواعد_اللغة_العربية_فؤاد_نعمة.pdf
+│   │   │   └── _⁨ملخص_قواعد_اللغة_العربية_في_مخططات_مبسطة_إعداد_دكتور_يحيى_مير.pdf
+│   │   ├── Pictures
+│   │   │   ├── Camera
+│   │   │   ├── Screenshots
+│   │   │   ├── Webcam
+│   │   │   ├── اخرى
+│   │   │   ├── بروفيل
+│   │   │   └── خلفيات
+│   │   └── Videos
+│   │       ├── Camera
+│   │       ├── Screencasts
+│   │       ├── Webcam
+│   │       ├── بابا
+│   │       └── شعر
+│   └── برمجة
+│       ├── godot
+│       │   └── new-game-project
+│       ├── html
+│       │   ├── arabic_converter.html
+│       │   ├── git(studysrvr)
+│       │   ├── index1.html
+│       │   ├── index.html
+│       │   ├── triple_cipher_encoder.html
+│       │   ├── win7.html
+│       │   ├── الصلاة.html
+│       │   └── الموقع
+│       ├── python
+│       │   ├── main.py
+│       │   ├── materials.json
+│       │   ├── mixer.py
+│       │   ├── substance.py
+│       │   └── substances_db.py
+│       ├── shell
+│       │   ├── backup
+│       │   ├── launch
+│       │   ├── moreSpace.sh
+│       │   ├── shair.fish
+│       │   ├── studysrvr.fish
+│       │   ├── terminalNotion.desktop
+│       │   └── تنبيه
+│       └── terbowarp
+│           └── 1
+├── systems
+│   ├── arch
+│   │   ├── arch.nvram
+│   │   ├── arch.vbox
+│   │   ├── arch.vbox-prev
+│   │   ├── arch.vdi
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   └── VBox.log.3
+│   │   └── Snapshots
+│   ├── dos
+│   │   ├── dos.vbox
+│   │   ├── dos.vbox-prev
+│   │   ├── dos.vdi
+│   │   └── Logs
+│   │       └── VBox.log
+│   ├── files
+│   │   ├── iso
+│   │   │   ├── archlinux-2026.06.01-x86_64.iso
+│   │   │   ├── en_windows_7_ultimate_with_sp1_x64_dvd_u_677332 (1).iso
+│   │   │   ├── en_windows_8.1_with_update_x64_dvd_6051480.iso
+│   │   │   ├── en_windows_8_x64_dvd_915440.iso
+│   │   │   ├── en_windows_vista_sp2_x64_dvd_342267.iso
+│   │   │   ├── en_windows_xp_professional_with_service_pack_3_x86_cd_vl_x14-73974.iso
+│   │   │   ├── FreeBSD-15.0-RELEASE-amd64-ufs.vmdk.xz
+│   │   │   ├── freedos.iso
+│   │   │   ├── MS-DOS 5.00a
+│   │   │   ├── MS-DOS 5.00a.zip
+│   │   │   ├── MS-DOS 6.22.iso
+│   │   │   ├── proxmox-ve_9.1-1.iso
+│   │   │   ├── Win95 OSR2.ISO
+│   │   │   ├── Windows 2000 Professional.iso
+│   │   │   ├── Windows 3.1.iso
+│   │   │   ├── Windows 98 Second Edition.iso
+│   │   │   └── zimaos-x86_64-1.6.1_installer.iso
+│   │   ├── Microsoft Windows 2.03 (3.5-720k)
+│   │   │   ├── Artwork
+│   │   │   ├── disk1.img
+│   │   │   ├── disk2.img
+│   │   │   ├── disk3.img
+│   │   │   ├── disk4.img
+│   │   │   ├── disk5.img
+│   │   │   └── winworldpc.com.txt
+│   │   ├── other
+│   │   │   ├── MAS_AIO.cmd
+│   │   │   └── ProPlusRetail.img
+│   │   └── win1.0
+│   │       ├── DISK1-SETUP.IMG
+│   │       ├── DISK2-BUILD.IMG
+│   │       ├── DISK3-UTILITY.IMG
+│   │       ├── DISK4-APPS.IMG
+│   │       └── DISK5-WRITE.IMG
+│   ├── freebsd
+│   │   ├── FreeBSD-15_copy.vdi
+│   │   ├── freebsd.vbox
+│   │   ├── freebsd.vbox-prev
+│   │   └── Logs
+│   │       ├── VBox.log
+│   │       ├── VBox.log.1
+│   │       ├── VBox.log.2
+│   │       └── VBox.log.3
+│   ├── freedos
+│   │   ├── freedos.vbox
+│   │   ├── freedos.vbox-prev
+│   │   ├── freedos.vdi
+│   │   └── Logs
+│   │       ├── VBox.log
+│   │       └── VBox.log.1
+│   ├── proxmox
+│   │   └── proxmox.qcow2
+│   ├── win2
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   └── VBox.log.3
+│   │   ├── win2.vbox
+│   │   ├── win2.vbox-prev
+│   │   └── win2.vdi
+│   ├── win2000
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   └── VBoxUI.log
+│   │   ├── Unattended-5d9572df-c6cf-4a31-bb3b-7e3c0b2041c9-aux-floppy.img
+│   │   ├── Unattended-5d9572df-c6cf-4a31-bb3b-7e3c0b2041c9-aux-iso.viso
+│   │   ├── Unattended-5d9572df-c6cf-4a31-bb3b-7e3c0b2041c9-VBOXPOST.CMD
+│   │   ├── Unattended-5d9572df-c6cf-4a31-bb3b-7e3c0b2041c9-WINNT.SIF
+│   │   ├── win2000.vbox
+│   │   ├── win2000.vbox-prev
+│   │   └── win2000.vdi
+│   ├── win3
+│   │   ├── Logs
+│   │   │   └── VBox.log
+│   │   ├── win3.vbox
+│   │   ├── win3.vbox-prev
+│   │   └── win3.vdi
+│   ├── win8
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   ├── VBox.log.3
+│   │   │   └── VBoxUI.log
+│   │   ├── Unattended-50d41ebf-19bc-4e54-a389-6f64b39e5c36-autounattend.xml
+│   │   ├── Unattended-50d41ebf-19bc-4e54-a389-6f64b39e5c36-aux-iso.viso
+│   │   ├── Unattended-50d41ebf-19bc-4e54-a389-6f64b39e5c36-VBOXPOST.CMD
+│   │   ├── win8.vbox
+│   │   ├── win8.vbox-prev
+│   │   └── win8.vdi
+│   ├── win8.1
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   ├── VBox.log.3
+│   │   │   └── VBoxUI.log
+│   │   ├── win8.1.vbox
+│   │   ├── win8.1.vbox-prev
+│   │   └── win8.1.vdi
+│   ├── win95_
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   └── VBox.log.3
+│   │   ├── win95_.vbox
+│   │   ├── win95_.vbox-prev
+│   │   └── win95_.vdi
+│   ├── win98
+│   │   ├── Logs
+│   │   │   └── VBox.log
+│   │   ├── win98.vbox
+│   │   ├── win98.vbox-prev
+│   │   └── win98.vdi
+│   ├── windows7
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   └── VBox.log.3
+│   │   ├── MAS_AIO.cmd
+│   │   ├── Snapshots
+│   │   ├── windows7.nvram
+│   │   ├── windows7.vbox
+│   │   ├── windows7.vbox-prev
+│   │   └── windows7.vdi
+│   ├── winVista
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   ├── VBox.log.3
+│   │   │   └── VBoxUI.log
+│   │   ├── winVista.vbox
+│   │   ├── winVista.vbox-prev
+│   │   └── winVista.vdi
+│   ├── winXp
+│   │   ├── Logs
+│   │   │   ├── VBox.log
+│   │   │   ├── VBox.log.1
+│   │   │   ├── VBox.log.2
+│   │   │   └── VBox.log.3
+│   │   ├── Unattended-04d7aa5a-453a-4771-9737-fd48a4c6fca2-aux-floppy.img
+│   │   ├── Unattended-04d7aa5a-453a-4771-9737-fd48a4c6fca2-aux-iso.viso
+│   │   ├── Unattended-04d7aa5a-453a-4771-9737-fd48a4c6fca2-VBOXPOST.CMD
+│   │   ├── Unattended-04d7aa5a-453a-4771-9737-fd48a4c6fca2-WINNT.SIF
+│   │   ├── winXp.vbox
+│   │   ├── winXp.vbox-prev
+│   │   └── winXp.vdi
+│   └── zima
+│       ├── Logs
+│       │   └── VBox.log
+│       ├── zima.nvram
+│       ├── zima.vbox
+│       ├── zima.vbox-prev
+│       └── zima.vdi
+└── System Volume Information
+    ├── AadRecoveryPasswordDelete
+    ├── ClientRecoveryPasswordRotation
+    ├── FveDecryptedVolumeFolder
+    ├── IndexerVolumeGuid
+    ├── tracking.log
+    └── WPSettings.dat
+
+79 directories, 164 files

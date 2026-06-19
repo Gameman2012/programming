@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────
+#  bg-service — تحويل أي تطبيق لـ background daemon
+#  الاستخدام:
+#    bg-service add <appname> [--exec /full/path] [--args "..."]
+#    bg-service remove <appname>
+#    bg-service list
+#    bg-service status <appname>
+# ─────────────────────────────────────────────
+
+set -euo pipefail
+
+# ── ألوان ──────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+ok()   { echo -e "${GREEN}✔${RESET}  $*"; }
+info() { echo -e "${CYAN}→${RESET}  $*"; }
+warn() { echo -e "${YELLOW}⚠${RESET}  $*"; }
+err()  { echo -e "${RED}✘${RESET}  $*" >&2; }
+die()  { err "$*"; exit 1; }
+sep()  { echo -e "${CYAN}──────────────────────────────────────${RESET}"; }
+
+SERVICE_DIR="$HOME/.config/systemd/user"
+
+# ── مساعدة ─────────────────────────────────────
+usage() {
+  echo -e "${BOLD}bg-service${RESET} — إدارة تطبيقات الخلفية عبر systemd"
+  sep
+  echo -e "  ${BOLD}add${RESET}    <app> [--exec /path] [--args \"flags\"]   تسجيل وتشغيل"
+  echo -e "  ${BOLD}remove${RESET} <app>                                   إيقاف وحذف"
+  echo -e "  ${BOLD}list${RESET}                                            عرض الكل"
+  echo -e "  ${BOLD}status${RESET} <app>                                   حالة service"
+  sep
+  echo -e "  مثال: ${CYAN}bg-service add dunst${RESET}"
+  echo -e "  مثال: ${CYAN}bg-service add myapp --exec /usr/bin/myapp --args \"--tray\"${RESET}"
+  echo -e "  مثال: ${CYAN}bg-service remove dunst${RESET}"
+}
+
+# ── إيجاد مسار التطبيق ─────────────────────────
+find_exec() {
+  local app="$1"
+  local path
+  path=$(command -v "$app" 2>/dev/null || true)
+  echo "$path"
+}
+
+# ── إنشاء الـ service ───────────────────────────
+cmd_add() {
+  local app=""
+  local exec_path=""
+  local extra_args=""
+
+  # parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --exec) exec_path="$2"; shift 2 ;;
+      --args) extra_args="$2"; shift 2 ;;
+      -*) die "خيار غير معروف: $1" ;;
+      *) [[ -z "$app" ]] && app="$1" || die "وسيط زيادة: $1"; shift ;;
+    esac
+  done
+
+  [[ -z "$app" ]] && die "لازم تحدد اسم التطبيق.\n  مثال: bg-service add dunst"
+
+  local service_name="${app}.service"
+  local service_file="$SERVICE_DIR/$service_name"
+
+  # تحقق لو موجود مسبقًا
+  if [[ -f "$service_file" ]]; then
+    warn "Service موجود بالفعل: $service_file"
+    read -r -p "  تحديث وإعادة تشغيل؟ [y/N] " confirm
+    [[ "$confirm" =~ ^[Yy]$ ]] || { info "تم الإلغاء."; exit 0; }
+  fi
+
+  # حدد المسار
+  if [[ -z "$exec_path" ]]; then
+    exec_path=$(find_exec "$app")
+    [[ -z "$exec_path" ]] && die "التطبيق '$app' مش موجود في PATH.\n  استخدم --exec /full/path/to/$app"
+  else
+    [[ ! -x "$exec_path" ]] && die "المسار غير موجود أو مش executable: $exec_path"
+  fi
+
+  local exec_line="$exec_path"
+  [[ -n "$extra_args" ]] && exec_line="$exec_path $extra_args"
+
+  sep
+  info "التطبيق  : ${BOLD}$app${RESET}"
+  info "المسار   : $exec_path"
+  [[ -n "$extra_args" ]] && info "Arguments: $extra_args"
+  info "Service  : $service_file"
+  sep
+
+  # إنشاء مجلد الـ services
+  mkdir -p "$SERVICE_DIR"
+
+  # كتابة ملف الـ service
+  cat > "$service_file" <<EOF
+[Unit]
+Description=$app background service (managed by bg-service)
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=$exec_line
+Restart=on-failure
+RestartSec=5
+Environment=DISPLAY=:0
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus
+Environment=XDG_RUNTIME_DIR=/run/user/%U
+
+[Install]
+WantedBy=default.target
+EOF
+
+  ok "تم إنشاء ملف الـ service"
+
+  # تفعيل linger (مهم لـ user services)
+  if ! loginctl show-user "$USER" 2>/dev/null | grep -q "Linger=yes"; then
+    info "تفعيل loginctl linger..."
+    loginctl enable-linger "$USER"
+    ok "تم تفعيل linger"
+  fi
+
+  # reload وتشغيل
+  systemctl --user daemon-reload
+  ok "تم daemon-reload"
+
+  systemctl --user enable "$service_name" 2>/dev/null
+  ok "تم enable عند بدء التشغيل"
+
+  if systemctl --user start "$service_name"; then
+    ok "تم تشغيل ${BOLD}$app${RESET} الآن ✓"
+  else
+    warn "التطبيق اشتغل لكن توقف — تحقق من:"
+    echo -e "  ${CYAN}journalctl --user -u $service_name -n 20${RESET}"
+  fi
+
+  sep
+  echo -e "  ${GREEN}${BOLD}$app${RESET}${GREEN} يشتغل في الخلفية وهيبدأ تلقائي مع كل تشغيل${RESET}"
+  echo ""
+  echo -e "  حالة : ${CYAN}bg-service status $app${RESET}"
+  echo -e "  حذف  : ${CYAN}bg-service remove $app${RESET}"
+  sep
+}
+
+# ── حذف الـ service ─────────────────────────────
+cmd_remove() {
+  local app="${1:-}"
+  [[ -z "$app" ]] && die "لازم تحدد اسم التطبيق.\n  مثال: bg-service remove dunst"
+
+  local service_name="${app}.service"
+  local service_file="$SERVICE_DIR/$service_name"
+
+  [[ ! -f "$service_file" ]] && die "مفيش service باسم '$app' — تحقق بـ: bg-service list"
+
+  sep
+  warn "هيتم إيقاف وحذف service الـ ${BOLD}$app${RESET}"
+  read -r -p "  متأكد؟ [y/N] " confirm
+  [[ "$confirm" =~ ^[Yy]$ ]] || { info "تم الإلغاء."; exit 0; }
+
+  # إيقاف وتعطيل
+  systemctl --user stop "$service_name"    2>/dev/null && ok "تم إيقاف $app" || true
+  systemctl --user disable "$service_name" 2>/dev/null && ok "تم disable" || true
+
+  # حذف الملف
+  rm -f "$service_file"
+  ok "تم حذف ملف الـ service"
+
+  systemctl --user daemon-reload
+  systemctl --user reset-failed 2>/dev/null || true
+  ok "daemon-reload تم"
+
+  sep
+  ok "${BOLD}$app${RESET} اتشال بالكامل من الـ background services"
+  sep
+}
+
+# ── قائمة الـ services ──────────────────────────
+cmd_list() {
+  sep
+  echo -e "  ${BOLD}Background services مُسجّلة بـ bg-service:${RESET}"
+  sep
+
+  local found=0
+  for f in "$SERVICE_DIR"/*.service; do
+    [[ -f "$f" ]] || continue
+    grep -q "managed by bg-service" "$f" 2>/dev/null || continue
+    found=1
+    local name
+    name=$(basename "$f" .service)
+    local status
+    status=$(systemctl --user is-active "${name}.service" 2>/dev/null || echo "unknown")
+    local color="$RED"
+    [[ "$status" == "active" ]] && color="$GREEN"
+    printf "  %-25s %b%s%b\n" "$name" "$color" "$status" "$RESET"
+  done
+
+  [[ $found -eq 0 ]] && echo -e "  ${YELLOW}لا يوجد services مسجّلة حتى الآن${RESET}"
+  sep
+}
+
+# ── حالة service ────────────────────────────────
+cmd_status() {
+  local app="${1:-}"
+  [[ -z "$app" ]] && die "لازم تحدد اسم التطبيق."
+  systemctl --user status "${app}.service" --no-pager -l || true
+}
+
+# ── Main ────────────────────────────────────────
+[[ $# -eq 0 ]] && { usage; exit 0; }
+
+case "$1" in
+  add)    shift; cmd_add "$@" ;;
+  remove) shift; cmd_remove "$@" ;;
+  list)   cmd_list ;;
+  status) shift; cmd_status "$@" ;;
+  -h|--help|help) usage ;;
+  *) err "أمر غير معروف: $1"; echo ""; usage; exit 1 ;;
+esac

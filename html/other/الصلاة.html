@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مواقيت الصلاة</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 5px; background: transparent; }
+        .prayer-card { 
+            background: transparent; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            width: 220px; 
+            color: #f0e6c8; 
+            text-shadow: 
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000;
+        }
+        .date-container { text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(240, 230, 200, 0.3); padding-bottom: 6px; }
+        h2 { text-align: center; font-size: 14px; margin: 0 0 2px 0; font-weight: bold; color: #e8c97a; }
+        .date-sub { font-size: 11px; margin-top: 2px; color: #f0e6c8; opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        th, td { padding: 3.5px; text-align: center; border-bottom: 1px solid rgba(240, 230, 200, 0.2); font-size: 12px; color: #f0e6c8; }
+        th { color: #e8c97a; font-weight: bold; }
+        td:last-child { color: #e8c97a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="prayer-card">
+    <div class="date-container">
+        <h2 id="day-name">جاري التحميل...</h2>
+        <div id="hijri-date" class="date-sub"></div>
+        <div id="gregorian-date" class="date-sub"></div>
+    </div>
+    <table>
+        <thead><tr><th>الصلاة</th><th>الوقت</th></tr></thead>
+        <tbody id="prayer-table"></tbody>
+    </table>
+</div>
+
+<script>
+    function format12(t) {
+        if (!t) return '—';
+        const [h, m] = t.split(':').map(Number);
+        const ampm = h >= 12 ? 'م' : 'ص';
+        const hour = h % 12 || 12;
+        return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+    }
+
+    async function getPrayerTimes() {
+        const url = "https://api.aladhan.com/v1/timingsByCity?city=Salmiya&country=Kuwait&method=4";
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            const timings = data.data.timings;
+            const hijri = data.data.date.hijri;
+            const gregorian = data.data.date.gregorian;
+            const weekdayAr = hijri.weekday.ar;
+
+            document.getElementById('day-name').innerText = "يوم " + weekdayAr;
+            document.getElementById('hijri-date').innerText = `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`;
+            document.getElementById('gregorian-date').innerText = gregorian.date + " م";
+
+            const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            const names = {'Fajr': 'الفجر', 'Sunrise': 'الشروق', 'Dhuhr': 'الظهر', 'Asr': 'العصر', 'Maghrib': 'المغرب', 'Isha': 'العشاء'};
+
+            let html = "";
+            prayers.forEach(p => {
+                html += `<tr><td>${names[p]}</td><td>${format12(timings[p])}</td></tr>`;
+            });
+            document.getElementById('prayer-table').innerHTML = html;
+        } catch(e) {
+            document.getElementById('day-name').innerText = "خطأ في التحميل";
+        }
+    }
+
+    // هنا السحر: هذا السطر يجعل الدالة تعمل فوراً
+    getPrayerTimes();
+
+    // وهذا السطر يجعلها تتكرر كل ساعة (3600000 ملي ثانية)
+    setInterval(getPrayerTimes, 3600000);
+</script>
+</body>
+</html>

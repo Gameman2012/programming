@@ -1,0 +1,114 @@
+{
+  "materials": {
+    "water": {
+      "name_ar": "الماء",
+      "name_en": "Water",
+      "specific_heat": 4186,
+      "melting_point": 0.0,
+      "boiling_point": 100.0,
+      "latent_heat_fusion": 334000,
+      "latent_heat_vaporization": 2260000,
+      "density": 1000,
+      "unit_c": "J/(kg·°C)"
+    },
+    "iron": {
+      "name_ar": "الحديد",
+      "name_en": "Iron",
+      "specific_heat": 450,
+      "melting_point": 1538.0,
+      "boiling_point": 2862.0,
+      "latent_heat_fusion": 247000,
+      "latent_heat_vaporization": 6090000,
+      "density": 7874,
+      "unit_c": "J/(kg·°C)"
+    },
+    "copper": {
+      "name_ar": "النحاس",
+      "name_en": "Copper",
+      "specific_heat": 385,
+      "melting_point": 1085.0,
+      "boiling_point": 2562.0,
+      "latent_heat_fusion": 205000,
+      "latent_heat_vaporization": 4730000,
+      "density": 8960,
+      "unit_c": "J/(kg·°C)"
+    },
+    "aluminum": {
+      "name_ar": "الألومنيوم",
+      "name_en": "Aluminum",
+      "specific_heat": 900,
+      "melting_point": 660.0,
+      "boiling_point": 2519.0,
+      "latent_heat_fusion": 397000,
+      "latent_heat_vaporization": 10900000,
+      "density": 2700,
+      "unit_c": "J/(kg·°C)"
+    },
+    "mercury": {
+      "name_ar": "الزئبق",
+      "name_en": "Mercury",
+      "specific_heat": 140,
+      "melting_point": -38.83,
+      "boiling_point": 356.73,
+      "latent_heat_fusion": 11300,
+      "latent_heat_vaporization": 294000,
+      "density": 13534,
+      "unit_c": "J/(kg·°C)"
+    },
+    "ethanol": {
+      "name_ar": "الكحول الإيثيلي",
+      "name_en": "Ethanol",
+      "specific_heat": 2440,
+      "melting_point": -114.1,
+      "boiling_point": 78.37,
+      "latent_heat_fusion": 108000,
+      "latent_heat_vaporization": 841000,
+      "density": 789,
+      "unit_c": "J/(kg·°C)"
+    },
+    "lead": {
+      "name_ar": "الرصاص",
+      "name_en": "Lead",
+      "specific_heat": 128,
+      "melting_point": 327.46,
+      "boiling_point": 1749.0,
+      "latent_heat_fusion": 23000,
+      "latent_heat_vaporization": 858000,
+      "density": 11340,
+      "unit_c": "J/(kg·°C)"
+    },
+    "gold": {
+      "name_ar": "الذهب",
+      "name_en": "Gold",
+      "specific_heat": 129,
+      "melting_point": 1064.0,
+      "boiling_point": 2856.0,
+      "latent_heat_fusion": 63000,
+      "latent_heat_vaporization": 1578000,
+      "density": 19300,
+      "unit_c": "J/(kg·°C)"
+    },
+    "silver": {
+      "name_ar": "الفضة",
+      "name_en": "Silver",
+      "specific_heat": 235,
+      "melting_point": 961.8,
+      "boiling_point": 2162.0,
+      "latent_heat_fusion": 105000,
+      "latent_heat_vaporization": 2360000,
+      "density": 10490,
+      "unit_c": "J/(kg·°C)"
+    },
+    "glycerol": {
+      "name_ar": "الجلسرين",
+      "name_en": "Glycerol",
+      "specific_heat": 2430,
+      "melting_point": 17.8,
+      "boiling_point": 290.0,
+      "latent_heat_fusion": 200000,
+      "latent_heat_vaporization": 825000,
+      "density": 1261,
+      "unit_c": "J/(kg·°C)"
+    }
+  }
+}

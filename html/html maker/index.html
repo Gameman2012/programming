@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Builder</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #1e1e1e; color: #ccc; overflow: hidden; }
+.toolbar { display: flex; gap: 8px; padding: 8px 16px; background: #2d2d2d; align-items: center; border-bottom: 1px solid #444; flex-shrink: 0; }
+.toolbar h1 { font-size: 15px; font-weight: 600; color: #fff; margin-right: 12px; }
+.toolbar button { background: #0d7377; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+.toolbar button:hover { background: #0a8a8f; }
+.toolbar button.danger { background: #6b2020; }
+.toolbar button.danger:hover { background: #8a2a2a; }
+.toolbar .badge { font-size: 12px; color: #999; margin-left: auto; }
+.container { display: flex; flex: 1; overflow: hidden; }
+
+/* Palette */
+.palette { width: 180px; background: #252526; border-right: 1px solid #444; display: flex; flex-direction: column; flex-shrink: 0; }
+.palette-header { padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; border-bottom: 1px solid #333; }
+.palette-items { padding: 8px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.palette-item { padding: 8px 10px; background: #333; border: 1px solid #444; border-radius: 4px; cursor: grab; font-size: 13px; color: #ddd; display: flex; align-items: center; gap: 8px; user-select: none; transition: background .15s; }
+.palette-item:hover { background: #3a3a3a; border-color: #0d7377; }
+.palette-item:active { cursor: grabbing; }
+.palette-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+/* Canvas */
+.canvas-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.canvas-header { padding: 10px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
+.canvas { flex: 1; padding: 24px; overflow-y: auto; background: #1a1a1a; }
+.canvas-dropzone { min-height: 100%; border: 2px dashed #444; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s, background .2s; }
+.canvas-dropzone.drag-over { border-color: #0d7377; background: rgba(13,115,119,.08); }
+.canvas-empty { display: flex; align-items: center; justify-content: center; height: 200px; color: #666; font-size: 14px; text-align: center; flex-direction: column; gap: 8px; pointer-events: none; }
+.canvas-empty .icon { font-size: 32px; }
+
+/* Canvas elements */
+.canvas-el { padding: 10px 14px; background: #2a2a2a; border: 1px solid #444; border-radius: 4px; cursor: grab; position: relative; user-select: none; transition: border-color .15s, box-shadow .15s; }
+.canvas-el:hover { border-color: #0d7377; }
+.canvas-el.selected { border-color: #0d7377; box-shadow: 0 0 0 1px #0d7377; }
+.canvas-el.dragging { opacity: .4; }
+.canvas-el.drag-over-target { border-top: 2px solid #0d7377; }
+.canvas-el .el-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+.canvas-el .el-content { font-size: 13px; color: #eee; min-height: 1em; }
+.canvas-el .el-remove { position: absolute; top: 4px; right: 6px; background: none; border: none; color: #666; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 3px; opacity: 0; transition: opacity .15s, color .15s; }
+.canvas-el:hover .el-remove { opacity: 1; }
+.canvas-el .el-remove:hover { color: #f66; background: rgba(255,60,60,.12); }
+.canvas-el .el-edit { position: absolute; top: 4px; right: 26px; background: none; border: none; color: #666; cursor: pointer; font-size: 13px; line-height: 1; padding: 2px 4px; border-radius: 3px; opacity: 0; transition: opacity .15s, color .15s; }
+.canvas-el:hover .el-edit { opacity: 1; }
+.canvas-el .el-edit:hover { color: #4af; background: rgba(60,160,255,.12); }
+
+/* Code panel */
+.code-panel { width: 320px; background: #1e1e1e; border-left: 1px solid #444; display: flex; flex-direction: column; flex-shrink: 0; }
+.code-header { padding: 10px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #888; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+.code-header button { background: none; border: 1px solid #555; color: #aaa; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; }
+.code-header button:hover { background: #333; color: #fff; }
+.code-body { flex: 1; overflow: hidden; position: relative; }
+.code-body .tab-panel { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+.code-body .tab-panel.active { display: block; }
+.code-body pre { padding: 12px; font-family: 'Consolas','Monaco',monospace; font-size: 13px; line-height: 1.5; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; overflow: auto; height: 100%; margin: 0; }
+.code-body iframe { border: none; background: #fff; }
+.code-header .tabs { display: flex; gap: 0; }
+.code-header .tab { background: transparent; border: none; color: #888; padding: 4px 12px; cursor: pointer; font-size: 12px; border-radius: 3px 3px 0 0; border-bottom: 2px solid transparent; }
+.code-header .tab:hover { color: #ccc; }
+.code-header .tab.active { color: #fff; border-bottom-color: #0d7377; }
+.code-body .hl-tag { color: #569cd6; }
+.code-body .hl-attr { color: #9cdcfe; }
+.code-body .hl-val { color: #ce9178; }
+.code-body .hl-comment { color: #6a9955; }
+.code-body .hl-text { color: #d4d4d4; }
+
+/* Modal for editing */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.6); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: #2d2d2d; border: 1px solid #555; border-radius: 8px; padding: 24px; width: 400px; max-width: 90vw; }
+.modal h2 { font-size: 16px; color: #fff; margin-bottom: 16px; }
+.modal label { display: block; font-size: 13px; color: #aaa; margin-bottom: 4px; margin-top: 12px; }
+.modal label:first-of-type { margin-top: 0; }
+.modal input, .modal textarea, .modal select { width: 100%; padding: 8px 10px; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; color: #ddd; font-size: 13px; font-family: inherit; outline: none; }
+.modal input:focus, .modal textarea:focus, .modal select:focus { border-color: #0d7377; }
+.modal textarea { resize: vertical; min-height: 60px; }
+.modal .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.modal .modal-buttons button { padding: 7px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+.modal .modal-buttons .btn-primary { background: #0d7377; color: #fff; }
+.modal .modal-buttons .btn-primary:hover { background: #0a8a8f; }
+.modal .modal-buttons .btn-cancel { background: #444; color: #ccc; }
+.modal .modal-buttons .btn-cancel:hover { background: #555; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>HTML Builder</h1>
+  <button onclick="exportHTML()">Export HTML</button>
+  <button onclick="clearCanvas()" class="danger">Clear All</button>
+  <span class="badge" id="elementCount">0 elements</span>
+</div>
+
+<div class="container">
+  <!-- Palette -->
+  <div class="palette">
+    <div class="palette-header">Elements</div>
+    <div class="palette-items" id="palette">
+      <div class="palette-item" draggable="true" data-type="container"><span class="icon">▣</span> Container</div>
+      <div class="palette-item" draggable="true" data-type="heading"><span class="icon">H</span> Heading</div>
+      <div class="palette-item" draggable="true" data-type="paragraph"><span class="icon">¶</span> Paragraph</div>
+      <div class="palette-item" draggable="true" data-type="image"><span class="icon">🖼</span> Image</div>
+      <div class="palette-item" draggable="true" data-type="button"><span class="icon">▢</span> Button</div>
+      <div class="palette-item" draggable="true" data-type="link"><span class="icon">↗</span> Link</div>
+      <div class="palette-item" draggable="true" data-type="list"><span class="icon">☰</span> List</div>
+      <div class="palette-item" draggable="true" data-type="input"><span class="icon">⌨</span> Input</div>
+      <div class="palette-item" draggable="true" data-type="textarea"><span class="icon">❐</span> Textarea</div>
+      <div class="palette-item" draggable="true" data-type="divider"><span class="icon">―</span> Divider</div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrap">
+    <div class="canvas-header">
+      <span>Canvas</span>
+      <span style="color:#666;font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">Drag elements here</span>
+    </div>
+    <div class="canvas" id="canvas">
+      <div class="canvas-dropzone" id="dropzone">
+        <div class="canvas-empty" id="emptyState">
+          <span class="icon">⊞</span>
+          <span>Drag elements from the left panel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code Panel -->
+  <div class="code-panel">
+    <div class="code-header">
+      <div class="tabs">
+        <button class="tab active" data-tab="code" onclick="switchTab('code')">Code</button>
+        <button class="tab" data-tab="preview" onclick="switchTab('preview')">Preview</button>
+      </div>
+      <button onclick="copyCode()" id="copyBtn">Copy</button>
+    </div>
+    <div class="code-body">
+      <pre id="codeOutput" class="tab-panel active"><span class="hl-comment">&lt;!-- Drag elements to start --&gt;</span></pre>
+      <iframe id="previewFrame" class="tab-panel" sandbox="allow-same-origin"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2 id="modalTitle">Edit Element</h2>
+    <div id="modalFields"></div>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let elements = [];
+let nextId = 1;
+let selectedId = null;
+let editingId = null;
+
+const DEFAULTS = {
+  container: { tag: 'div', content: '', style: '' },
+  heading: { tag: 'h2', content: 'Heading Text', style: '' },
+  paragraph: { tag: 'p', content: 'Lorem ipsum dolor sit amet.', style: '' },
+  image: { tag: 'img', src: 'https://picsum.photos/200/120', alt: 'image', style: '' },
+  button: { tag: 'button', content: 'Click Me', style: '' },
+  link: { tag: 'a', href: '#', content: 'Click here', style: '' },
+  list: { tag: 'ul', items: 'Item 1\nItem 2\nItem 3', style: '' },
+  input: { tag: 'input', placeholder: 'Enter text...', type: 'text', style: '' },
+  textarea: { tag: 'textarea', placeholder: 'Enter text...', rows: '3', style: '' },
+  divider: { tag: 'hr', style: '' },
+};
+
+/* Drag from palette */
+document.querySelectorAll('.palette-item').forEach(el => {
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', el.dataset.type);
+    e.dataTransfer.effectAllowed = 'copy';
+  });
+});
+
+/* Drop zone */
+const dropzone = document.getElementById('dropzone');
+dropzone.addEventListener('dragover', e => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  dropzone.classList.add('drag-over');
+});
+dropzone.addEventListener('dragleave', () => {
+  dropzone.classList.remove('drag-over');
+});
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag-over');
+  const type = e.dataTransfer.getData('text/plain');
+  if (type) addElement(type);
+});
+
+/* Canvas drag reorder */
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('dragover', e => {
+  const el = e.target.closest('.canvas-el');
+  if (el) {
+    const rect = el.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    if (y < rect.height / 2) el.dataset.pos = 'before';
+    else el.dataset.pos = 'after';
+    document.querySelectorAll('.canvas-el.drag-over-target').forEach(x => x.classList.remove('drag-over-target'));
+    el.classList.add('drag-over-target');
+  }
+});
+canvas.addEventListener('dragleave', e => {
+  const el = e.target.closest('.canvas-el');
+  if (el) { el.classList.remove('drag-over-target'); delete el.dataset.pos; }
+});
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  document.querySelectorAll('.canvas-el.drag-over-target').forEach(x => x.classList.remove('drag-over-target'));
+  const targetEl = e.target.closest('.canvas-el');
+  if (!targetEl) return;
+  const dragData = e.dataTransfer.getData('text/plain');
+  if (!dragData) return;
+  /* If it's a new element from palette */
+  if (!dragData.startsWith('el-')) {
+    addElement(dragData, targetEl.dataset.id, targetEl.dataset.pos);
+    return;
+  }
+  /* Reorder existing */
+  const dragId = parseInt(dragData.replace('el-', ''));
+  const targetId = parseInt(targetEl.dataset.id);
+  if (dragId === targetId) return;
+  const pos = targetEl.dataset.pos || 'after';
+  moveElement(dragId, targetId, pos);
+});
+
+/* Make canvas elements draggable */
+function makeDraggable(el) {
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', 'el-' + el.dataset.id);
+    e.dataTransfer.effectAllowed = 'move';
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    document.querySelectorAll('.canvas-el.drag-over-target').forEach(x => x.classList.remove('drag-over-target'));
+  });
+}
+
+function addElement(type, afterId, pos) {
+  const def = DEFAULTS[type];
+  if (!def) return;
+  const id = nextId++;
+  const el = { id, type, ...def };
+  if (type === 'container') el.children = [];
+  elements.push(el);
+  if (afterId) {
+    const idx = elements.findIndex(e => e.id === afterId);
+    if (idx !== -1) {
+      const removed = elements.pop();
+      const offset = pos === 'before' ? 0 : 1;
+      elements.splice(idx + offset, 0, removed);
+    }
+  }
+  render();
+}
+
+function moveElement(dragId, targetId, pos) {
+  const dragIdx = elements.findIndex(e => e.id === dragId);
+  const targetIdx = elements.findIndex(e => e.id === targetId);
+  if (dragIdx === -1 || targetIdx === -1) return;
+  const [item] = elements.splice(dragIdx, 1);
+  const offset = (pos === 'before' || dragIdx < targetIdx) ? 0 : 1;
+  const insertAt = targetIdx > dragIdx ? targetIdx - 1 + (pos === 'after' ? 1 : 0) : targetIdx + (pos === 'after' ? 1 : 0);
+  elements.splice(Math.min(insertAt, elements.length), 0, item);
+  render();
+}
+
+function removeElement(id) {
+  elements = elements.filter(e => e.id !== id);
+  if (selectedId === id) selectedId = null;
+  render();
+}
+
+function editElement(id) {
+  const el = elements.find(e => e.id === id);
+  if (!el) return;
+  editingId = id;
+  const fields = document.getElementById('modalFields');
+  fields.innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'Edit ' + el.type.charAt(0).toUpperCase() + el.type.slice(1);
+
+  const typeConfigs = {
+    container: [ { key: 'content', label: 'Inner HTML (optional)', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    heading: [ { key: 'content', label: 'Text', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    paragraph: [ { key: 'content', label: 'Text', type: 'textarea' }, { key: 'style', label: 'Style', type: 'text' } ],
+    image: [ { key: 'src', label: 'Image URL', type: 'text' }, { key: 'alt', label: 'Alt text', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    button: [ { key: 'content', label: 'Button text', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    link: [ { key: 'content', label: 'Link text', type: 'text' }, { key: 'href', label: 'URL', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    list: [ { key: 'items', label: 'Items (one per line)', type: 'textarea' }, { key: 'style', label: 'Style', type: 'text' } ],
+    input: [ { key: 'placeholder', label: 'Placeholder', type: 'text' }, { key: 'type', label: 'Type', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    textarea: [ { key: 'placeholder', label: 'Placeholder', type: 'text' }, { key: 'rows', label: 'Rows', type: 'text' }, { key: 'style', label: 'Style', type: 'text' } ],
+    divider: [ { key: 'style', label: 'Style', type: 'text' } ],
+  };
+
+  const config = typeConfigs[el.type] || [];
+  config.forEach(field => {
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    fields.appendChild(label);
+    if (field.type === 'textarea') {
+      const ta = document.createElement('textarea');
+      ta.dataset.key = field.key;
+      ta.value = el[field.key] || '';
+      fields.appendChild(ta);
+    } else {
+      const inp = document.createElement('input');
+      inp.dataset.key = field.key;
+      inp.value = el[field.key] || '';
+      fields.appendChild(inp);
+    }
+  });
+
+  document.getElementById('editModal').classList.add('show');
+}
+
+function saveModal() {
+  const el = elements.find(e => e.id === editingId);
+  if (!el) return;
+  document.querySelectorAll('#modalFields input, #modalFields textarea').forEach(inp => {
+    el[inp.dataset.key] = inp.value;
+  });
+  closeModal();
+  render();
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('show');
+  editingId = null;
+}
+
+function render() {
+  dropzone.innerHTML = '';
+  if (elements.length === 0) {
+    dropzone.innerHTML = '<div class="canvas-empty"><span class="icon">⊞</span><span>Drag elements from the left panel</span></div>';
+  } else {
+    elements.forEach(el => {
+      const div = document.createElement('div');
+      div.className = 'canvas-el' + (selectedId === el.id ? ' selected' : '');
+      div.dataset.id = el.id;
+      div.draggable = true;
+
+      const label = document.createElement('div');
+      label.className = 'el-label';
+      label.textContent = el.type.charAt(0).toUpperCase() + el.type.slice(1);
+      div.appendChild(label);
+
+      const content = document.createElement('div');
+      content.className = 'el-content';
+
+      if (el.type === 'image') {
+        const img = document.createElement('img');
+        img.src = el.src || DEFAULTS.image.src;
+        img.alt = el.alt || '';
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '60px';
+        img.style.borderRadius = '3px';
+        content.appendChild(img);
+      } else if (el.type === 'divider') {
+        content.innerHTML = '<span style="color:#555">────────────────</span>';
+      } else if (el.type === 'list') {
+        content.textContent = (el.items || '').split('\n').filter(Boolean).length + ' items';
+      } else if (el.type === 'input' || el.type === 'textarea') {
+        content.textContent = el.placeholder || DEFAULTS[el.type].placeholder;
+        content.style.color = '#888';
+        content.style.fontStyle = 'italic';
+      } else {
+        content.textContent = el.content || DEFAULTS[el.type]?.content || '';
+      }
+      div.appendChild(content);
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'el-edit';
+      editBtn.innerHTML = '✎';
+      editBtn.title = 'Edit';
+      editBtn.onclick = e => { e.stopPropagation(); editElement(el.id); };
+      div.appendChild(editBtn);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'el-remove';
+      removeBtn.innerHTML = '✕';
+      removeBtn.title = 'Remove';
+      removeBtn.onclick = e => { e.stopPropagation(); removeElement(el.id); };
+      div.appendChild(removeBtn);
+
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.canvas-el.selected').forEach(x => x.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedId = el.id;
+      });
+
+      makeDraggable(div);
+      dropzone.appendChild(div);
+    });
+  }
+
+  document.getElementById('elementCount').textContent = elements.length + ' element' + (elements.length !== 1 ? 's' : '');
+  generateCode();
+}
+
+function generateCode() {
+  const out = document.getElementById('codeOutput');
+  if (elements.length === 0) {
+    out.innerHTML = '<span class="hl-comment">&lt;!-- Drag elements to start --&gt;</span>';
+    document.getElementById('previewFrame').srcdoc = '';
+    return;
+  }
+  let html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 20px; }\n  </style>\n</head>\n<body>\n';
+  elements.forEach(el => {
+    html += '  ' + renderElement(el, 2) + '\n';
+  });
+  html += '</body>\n</html>';
+  out.textContent = html;
+  document.getElementById('previewFrame').srcdoc = html;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab[data-tab="' + tab + '"]').classList.add('active');
+  document.getElementById(tab === 'code' ? 'codeOutput' : 'previewFrame').classList.add('active');
+  document.getElementById('copyBtn').style.display = tab === 'code' ? '' : 'none';
+}
+
+function renderElement(el, indent) {
+  const pad = '  '.repeat(indent);
+  const styleAttr = el.style ? ' style="' + esc(el.style) + '"' : '';
+
+  switch (el.type) {
+    case 'container':
+      return pad + '<div' + styleAttr + '>\n    ' + (el.content || '') + '\n' + pad + '</div>';
+    case 'heading':
+      return pad + '<' + (el.tag || 'h2') + styleAttr + '>' + esc(el.content || '') + '</' + (el.tag || 'h2') + '>';
+    case 'paragraph':
+      return pad + '<p' + styleAttr + '>' + esc(el.content || '') + '</p>';
+    case 'image':
+      return pad + '<img src="' + esc(el.src || '') + '" alt="' + esc(el.alt || '') + '"' + styleAttr + '>';
+    case 'button':
+      return pad + '<button' + styleAttr + '>' + esc(el.content || '') + '</button>';
+    case 'link':
+      return pad + '<a href="' + esc(el.href || '#') + '"' + styleAttr + '>' + esc(el.content || '') + '</a>';
+    case 'list': {
+      const items = (el.items || '').split('\n').filter(Boolean);
+      if (items.length === 0) return pad + '<ul' + styleAttr + '></ul>';
+      let h = pad + '<ul' + styleAttr + '>\n';
+      items.forEach(item => { h += pad + '  <li>' + esc(item) + '</li>\n'; });
+      h += pad + '</ul>';
+      return h;
+    }
+    case 'input':
+      return pad + '<input type="' + esc(el.type || 'text') + '" placeholder="' + esc(el.placeholder || '') + '"' + styleAttr + '>';
+    case 'textarea':
+      return pad + '<textarea placeholder="' + esc(el.placeholder || '') + '" rows="' + (el.rows || '3') + '"' + styleAttr + '></textarea>';
+    case 'divider':
+      return pad + '<hr' + styleAttr + '>';
+    default:
+      return pad + '<div' + styleAttr + '>' + esc(el.content || '') + '</div>';
+  }
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function clearCanvas() { elements = []; selectedId = null; render(); }
+
+function exportHTML() {
+  const code = document.getElementById('codeOutput').textContent;
+  const blob = new Blob([code], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function copyCode() {
+  const code = document.getElementById('codeOutput').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1200);
+  });
+}
+</script>
+</body>
+</html>

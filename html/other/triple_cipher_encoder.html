@@ -1,0 +1,154 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-mono)}
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem}
+.tab{flex:1;padding:10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:var(--color-text-secondary);font-family:var(--font-mono);transition:all .15s}
+.tab.active{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.step{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+.step-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+textarea{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:15px;font-family:var(--font-mono);background:var(--color-background-primary);color:var(--color-text-primary);resize:none;min-height:72px;direction:rtl}
+.output{font-size:13px;color:var(--color-text-primary);font-family:var(--font-mono);line-height:1.8;word-break:break-all;min-height:36px;direction:ltr}
+.output.arabic{direction:rtl;font-family:var(--font-sans);font-size:15px}
+.arrow{text-align:center;color:var(--color-text-tertiary);font-size:18px;margin:4px 0}
+.btn{width:100%;padding:11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono);margin-top:4px;transition:all .15s}
+.btn:hover{background:var(--color-background-secondary)}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);background:var(--color-background-warning);color:var(--color-text-warning);margin-left:8px}
+</style>
+<div class="wrap">
+  <h2 class="sr-only">تطبيق التشفير الثلاثي</h2>
+  <div class="tabs">
+    <button class="tab active" onclick="setMode('enc')">🔒 تشفير</button>
+    <button class="tab" onclick="setMode('dec')">🔓 فك الشفرة</button>
+  </div>
+
+  <div id="enc-panel">
+    <div class="step">
+      <div class="step-label">① النص العربي</div>
+      <textarea id="arabic-in" placeholder="اكتب نصك هنا..." oninput="encode()" rows="3"></textarea>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="step">
+      <div class="step-label">② شفرة لوحة المفاتيح <span class="badge">QWERTY</span></div>
+      <div class="output" id="key-out">—</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="step">
+      <div class="step-label">③ شفرة مورس</div>
+      <div class="output" id="morse-out">—</div>
+    </div>
+    <button class="btn" onclick="copyMorse()">نسخ شفرة مورس ↗</button>
+  </div>
+
+  <div id="dec-panel" style="display:none">
+    <div class="step">
+      <div class="step-label">① شفرة مورس</div>
+      <textarea id="morse-in" placeholder="أدخل مورس هنا... نقطة وشرطة ومسافات، / بين الكلمات" oninput="decode()" rows="3" style="direction:ltr"></textarea>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="step">
+      <div class="step-label">② شفرة لوحة المفاتيح</div>
+      <div class="output" id="key-out2">—</div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="step">
+      <div class="step-label">③ النص العربي</div>
+      <div class="output arabic" id="arabic-out">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const A2K = {
+  'ض':'q','ص':'w','ث':'e','ق':'r','ف':'t','غ':'y','ع':'u','ه':'i','خ':'o','ح':'p','ج':'[','د':']',
+  'ش':'a','س':'s','ي':'d','ب':'f','ل':'g','ا':'h','ت':'j','ن':'k','م':'l','ك':';','ط':"'",
+  'ئ':'z','ء':'x','ؤ':'c','ر':'v','ى':'n','ة':'m','و':',','ز':'.','ظ':'/','إ':'h','أ':'h','آ':'h',' ':' '
+};
+const K2A = {'b':'لا'};
+Object.entries(A2K).forEach(([a,k])=>{ if(!K2A[k]) K2A[k]=a; });
+
+const C2M = {
+  a:'.-',b:'-...',c:'-.-.',d:'-..',e:'.',f:'..-.',g:'--.',h:'....',i:'..',j:'.---',k:'-.-',
+  l:'.-..',m:'--',n:'-.',o:'---',p:'.--.',q:'--.-',r:'.-.',s:'...',t:'-',u:'..-',
+  v:'...-',w:'.--',x:'-..-',y:'-.--',z:'--..',
+  '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..',
+  '9':'----.','.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--',':':'---...',';':'-.-.-.','(':'-.--.',
+  ')':'-.--.-',"'":'.----.','-':'-....-','=':'-...-','@':'.--.-.',' ':'/'
+};
+const M2C = {};
+Object.entries(C2M).forEach(([c,m])=>{ if(!M2C[m]) M2C[m]=c; });
+M2C['/']=' ';
+
+const PASSTHROUGH = new Set(['[',']','(',')','{','}']);
+
+function arabicToKey(text) {
+  let out='';
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    out += A2K[ch]!==undefined ? A2K[ch] : ch;
+  }
+  return out;
+}
+
+function keyToMorse(text) {
+  const words = text.split(' ');
+  const parts = words.map(w => {
+    if(!w) return '';
+    return w.toLowerCase().split('').map(c => {
+      if(PASSTHROUGH.has(c)) return '\x00'+c+'\x00';
+      return C2M[c] || '?';
+    }).join(' ');
+  }).join(' / ');
+  return parts.replace(/ ?\x00([^\x00]+)\x00 ?/g, ' $1 ').trim();
+}
+
+function morseToKey(morse) {
+  const tokens = morse.trim().split(/\s+/);
+  let out='';
+  for(const tok of tokens){
+    if(tok=='/'){out+=' ';}
+    else if(PASSTHROUGH.has(tok)){out+=tok;}
+    else if(M2C[tok]!==undefined){out+=M2C[tok];}
+    else{out+='?';}
+  }
+  return out;
+}
+
+function keyToArabic(text) {
+  let out='';
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    out += K2A[ch]!==undefined ? K2A[ch] : ch;
+  }
+  return out;
+}
+
+function encode(){
+  const arabic=document.getElementById('arabic-in').value;
+  if(!arabic.trim()){document.getElementById('key-out').textContent='—';document.getElementById('morse-out').textContent='—';return;}
+  const key=arabicToKey(arabic);
+  const morse=keyToMorse(key);
+  document.getElementById('key-out').textContent=key||'—';
+  document.getElementById('morse-out').textContent=morse||'—';
+}
+
+function decode(){
+  const morse=document.getElementById('morse-in').value.trim();
+  if(!morse){document.getElementById('key-out2').textContent='—';document.getElementById('arabic-out').textContent='—';return;}
+  const key=morseToKey(morse);
+  const arabic=keyToArabic(key);
+  document.getElementById('key-out2').textContent=key||'—';
+  document.getElementById('arabic-out').textContent=arabic||'—';
+}
+
+function setMode(m){
+  document.getElementById('enc-panel').style.display=m==='enc'?'block':'none';
+  document.getElementById('dec-panel').style.display=m==='dec'?'block':'none';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&m==='enc')||(i===1&&m==='dec')));
+}
+
+function copyMorse(){
+  const t=document.getElementById('morse-out').textContent;
+  if(t&&t!=='—') navigator.clipboard.writeText(t).then(()=>alert('تم النسخ!'));
+}
+</script>
