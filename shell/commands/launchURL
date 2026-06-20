@@ -65,7 +65,8 @@ open_url() {
     if [[ "$url" =~ youtube\.com|youtu\.be ]]; then
         zenity --question --title="YouTube Link" --text="فتح الرابط في mpv؟" --ok-label="mpv" --cancel-label="المتصفح" 2>/dev/null
         if [ $? -eq 0 ]; then
-            exec mpv "$url" & disdown
+            nohup mpv "$url" >/dev/null 2>&1 &
+            return
         fi
     fi
     chromium --app="$url"
