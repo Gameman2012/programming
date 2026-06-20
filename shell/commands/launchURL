@@ -1,5 +1,24 @@
 #!/bin/bash
 
+chromium() {
+    nohup /usr/bin/chromium "$@" >/dev/null 2>&1 &
+}
+
+zenity() {
+    local tmpfile
+    tmpfile=$(mktemp /tmp/launchURL-zenity-XXXX)
+    nohup /usr/bin/zenity "$@" > "$tmpfile" 2>/dev/null &
+    local pid=$!
+    echo "↳ zenity dialog open in background (PID $pid)" >&2
+    wait "$pid"
+    local ret=$?
+    local out
+    out=$(cat "$tmpfile")
+    rm -f "$tmpfile"
+    [ -n "$out" ] && printf '%s\n' "$out"
+    return "$ret"
+}
+
 # ===== إعدادات الاختصارات =====
 # الاختصار الرئيسي (Enter فارغ) - الرابط الذي يفتح عند الضغط على Enter بدون كتابة شيء
 MAIN_SHORTCUT="https://gemini.google.com"
@@ -46,10 +65,26 @@ open_url() {
     if [[ "$url" =~ youtube\.com|youtu\.be ]]; then
         zenity --question --title="YouTube Link" --text="فتح الرابط في mpv؟" --ok-label="mpv" --cancel-label="المتصفح" 2>/dev/null
         if [ $? -eq 0 ]; then
-            exec mpv "$url"
+            exec mpv "$url" & disdown
         fi
     fi
-    /usr/bin/chromium --app="$url"
+    chromium --app="$url"
+}
+
+process_input() {
+    local input="$1"
+    if [ -z "$input" ]; then
+        chromium --app="$MAIN_SHORTCUT"
+    elif [ "$input" = " " ]; then
+        chromium --app="$SECONDARY_SHORTCUT"
+    elif [[ "$input" =~ ^[0-9]+$ ]] && [ -n "${NUM_SHORTCUTS[$input]}" ]; then
+        chromium --app="${NUM_SHORTCUTS[$input]}"
+    elif is_url "$input"; then
+        [[ "$input" =~ ^https?:// ]] || input="https://$input"
+        open_url "$input"
+    else
+        chromium --app="https://www.google.com/search?q=$(echo "$input" | sed 's/ /+/g')"
+    fi
 }
 
 if [ $# -ge 1 ] && [ -f "$1" ]; then
@@ -57,21 +92,12 @@ if [ $# -ge 1 ] && [ -f "$1" ]; then
     if [ -n "$URL" ]; then
         open_url "$URL"
     fi
+elif [ $# -ge 1 ]; then
+    process_input "$*"
 else
     INPUT=$(zenity --entry --title="فتح موقع كـ تطبيق" --text="أدخل رابط أو كلمة بحث:" 2>/dev/null)
     if [ $? -eq 1 ]; then
         exit 0
     fi
-    if [ -z "$INPUT" ]; then
-        /usr/bin/chromium --app="$MAIN_SHORTCUT"
-    elif [ "$INPUT" = " " ]; then
-        /usr/bin/chromium --app="$SECONDARY_SHORTCUT"
-    elif [[ "$INPUT" =~ ^[0-9]+$ ]] && [ -n "${NUM_SHORTCUTS[$INPUT]}" ]; then
-        /usr/bin/chromium --app="${NUM_SHORTCUTS[$INPUT]}"
-    elif is_url "$INPUT"; then
-        [[ "$INPUT" =~ ^https?:// ]] || INPUT="https://$INPUT"
-        open_url "$INPUT"
-    else
-        /usr/bin/chromium --app="https://www.google.com/search?q=$(echo "$INPUT" | sed 's/ /+/g')"
-    fi
+    process_input "$INPUT"
 fi
