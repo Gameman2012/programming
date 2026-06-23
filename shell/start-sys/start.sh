@@ -13,5 +13,5 @@ brightness=$(brightnessctl -m | cut -d, -f4 | tr -d '%')
 volume=$(pactl get-sink-volume @DEFAULT_SINK@ | head -n1 | awk '{print $5}' | tr -d '%')
 
 if [ "$brightness" -eq 100 ] && [ "$volume" -ge 30 ]; then
-    mpv --no-video /home/mahmoud/programming/shell/start-sys/Windows\ XP\ Startup.mp3 &
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.30  && mpv --no-video /home/mahmoud/programming/shell/start-sys/Windows\ XP\ Startup.mp3 &
 fi

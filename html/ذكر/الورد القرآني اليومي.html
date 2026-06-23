@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!-- saved from url=(0179)file:///storage/mahmoud/programming/html/%D8%B0%D9%83%D8%B1/%D8%A7%D9%84%D9%88%D8%B1%D8%AF%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%D9%8A%20%D8%A7%D9%84%D9%8A%D9%88%D9%85%D9%8A.html -->
+<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الورد القرآني اليومي</title>
+    <!-- خط Tajawal من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="file:///storage/mahmoud/programming/html/%D8%B0%D9%83%D8%B1/%D8%A7%D9%84%D9%88%D8%B1%D8%AF%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%D9%8A%20%D8%A7%D9%84%D9%8A%D9%88%D9%85%D9%8A_files/css2" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #090d16; /* خلفية داكنة ومريحة للعين */
+            --paper-color: #fbf7f0; /* خلفية ورقية دافئة لصفحة المصحف */
+            --gold-color: #c5a880;
+            --text-color: #e2e8f0;
+            --muted-color: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        /* الإطار المركزي لصفحة المصحف */
+        .quran-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-height: 96vh;
+            max-width: 96vw;
+            border-radius: 12px;
+            background-color: var(--paper-color);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quran-card img {
+            display: block;
+            max-height: 96vh;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        /* مؤشر التحميل الدائري */
+        .spinner {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(197, 168, 128, 0.1);
+            border-top-color: var(--gold-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 5;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* زر المساعدة والدعم العائم */
+        .support-trigger {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(18, 24, 36, 0.8);
+            backdrop-filter: blur(5px);
+            color: var(--gold-color);
+            border: 1px solid var(--gold-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+            min-width: 40px;
+            min-height: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .support-trigger:hover {
+            background-color: var(--gold-color);
+            color: var(--bg-color);
+            transform: translateY(-2px);
+        }
+
+        /* نافذة المساعدة والدعم المنبثقة */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(9, 13, 22, 0.85); /* خلفية معتمة للمودال */
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #121824;
+            border: 1px solid rgba(197, 168, 128, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            direction: rtl;
+            text-align: right;
+            animation: slideUp 0.3s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            color: var(--muted-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--gold-color);
+        }
+
+        .modal-title {
+            color: var(--gold-color);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(197, 168, 128, 0.15);
+            padding-bottom: 10px;
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .modal-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .modal-body li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-right: 20px;
+        }
+
+        .modal-body li::before {
+            content: "•";
+            color: var(--gold-color);
+            position: absolute;
+            right: 0;
+            font-size: 1.2rem;
+        }
+
+        .modal-body a {
+            color: var(--gold-color);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--gold-color);
+            transition: all 0.2s;
+        }
+
+        .modal-body a:hover {
+            color: #e2e8f0;
+            border-bottom-style: solid;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--muted-color);
+            border-top: 1px solid rgba(197, 168, 128, 0.15);
+            padding-top: 15px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* رسالة إتمام المصحف الشريف */
+        .completion-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            background-color: #121824;
+            border: 1px solid rgba(197, 168, 128, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            max-width: 450px;
+            margin: 20px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .completion-container .icon {
+            font-size: 3rem;
+            color: var(--gold-color);
+            margin-bottom: 20px;
+        }
+
+        .completion-container h2 {
+            color: var(--gold-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .completion-container p {
+            color: var(--muted-color);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- إطار عرض الصفحة الواحدة -->
+    <div class="quran-card" id="quran-card">
+        <div class="spinner" id="loading-spinner" style="display: none;"></div>
+        <img src="./الورد القرآني اليومي_files/page002.png" alt="صفحة المصحف الشريف" id="quran-img" style="opacity: 1;">
+    </div>
+
+    <!-- رسالة إتمام المصحف -->
+    <div class="completion-container" id="completion-card">
+        <div class="icon">✨</div>
+        <h2>تم ختم المصحف بحمد الله</h2>
+        <p>مبارك عليك إتمام وردك القرآني اليومي كاملاً.</p>
+    </div>
+
+    <!-- زر المساعدة والدعم العائم -->
+    <button class="support-trigger" id="support-btn" onclick="toggleModal(true)"></button>
+
+    <!-- نافذة المساعدة والدعم المنبثقة -->
+    <div class="modal-overlay active" id="support-modal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="toggleModal(false)">×</button>
+            <div class="modal-title">ممكن أن تساعدونا بالتالي:</div>
+            <div class="modal-body">
+                <ul>
+                    <li>دخول القناة: <a href="https://whatsapp.com/channel/0029VbCuwcJ1nozENqj5ok13" target="_blank" rel="noopener noreferrer">اضغط هنا للانضمام</a></li>
+                    <li>دخول الموقع <a href="https://quran-daily-werd.netlify.app/" target="_blank" rel="noopener noreferrer">الرابط هنا</a></li>
+
+                    <li>دخول الجروب: <a href="https://chat.whatsapp.com/Ezvg3vCgoTrHrjYVhKkhXC" target="_blank" rel="noopener noreferrer">اضغط هنا للانضمام</a></li>
+                    <li>اقتراح أذكار بالجروب</li>
+                    <li>نشر الروابط</li>
+                    <li>التفضل ومساعدتنا في النشر اليومي بالقناة أو الجروب</li>
+                </ul>
+                <div class="modal-footer">
+                    ولكم الأجر... وتذكروا أن كل مسلم جزء من الإسلام، والرسول عليه أفضل الصلاة وأتم التسليم قال: "بلغوا عني ولو آية".
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تاريخ الانطلاق الثابت
+        const START_DATE = new Date(2026, 5, 21); // 21 يونيو 2026 (الشهر 0-indexed)
+
+        function initDailyPlan() {
+            const today = new Date();
+            
+            // حساب فرق الأيام بدقة (Calendar Days)
+            const date1 = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+            const date2 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const diffTime = date2 - date1;
+            
+            let daysElapsed = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            if (daysElapsed < 0) daysElapsed = 0; // حماية ما قبل تاريخ الانطلاق
+
+            // تحديد رقم الصفحة لليوم الحالي (صفحة واحدة لكل يوم)
+            const currentPage = daysElapsed + 1;
+
+            // حماية نهاية المصحف (604 صفحة)
+            if (currentPage > 604) {
+                document.getElementById('quran-card').style.display = 'none';
+                document.getElementById('completion-card').style.display = 'flex';
+                return;
+            }
+
+            renderPage(currentPage);
+        }
+
+        function renderPage(pageNumber) {
+            const imgElement = document.getElementById('quran-img');
+            const spinner = document.getElementById('loading-spinner');
+
+            // تحويل رقم الصفحة إلى ثلاث خانات (مثال: page002.png)
+            const paddedPage = String(pageNumber).padStart(3, '0');
+
+            // جلب صورة الصفحة الفردية عالية الجودة بالرسم العثماني من خادم موثوق
+            imgElement.src = `https://quran.islam-db.com/public/data/pages/quranpages_1024/images/page${paddedPage}.png`;
+
+            imgElement.onload = () => {
+                spinner.style.display = 'none';
+                imgElement.style.opacity = '1';
+            };
+
+            imgElement.onerror = () => {
+                spinner.style.display = 'none';
+                console.error("فشل تحميل صورة الصفحة القرآنية.");
+            };
+        }
+
+        // التحكم في المودال (النافذة المنبثقة)
+        function toggleModal(show) {
+            const modal = document.getElementById('support-modal');
+            if (show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function closeModalOnBackdrop(event) {
+            if (event.target === document.getElementById('support-modal')) {
+                toggleModal(false);
+            }
+        }
+
+        // تشغيل البناء تلقائياً عند تحميل الصفحة
+        window.onload = initDailyPlan;
+    </script>
+
+</body></html>
