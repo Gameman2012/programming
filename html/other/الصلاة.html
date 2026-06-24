@@ -63,8 +63,25 @@
             document.getElementById('hijri-date').innerText = `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`;
             document.getElementById('gregorian-date').innerText = gregorian.date + " م";
 
-            const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-            const names = {'Fajr': 'الفجر', 'Sunrise': 'الشروق', 'Dhuhr': 'الظهر', 'Asr': 'العصر', 'Maghrib': 'المغرب', 'Isha': 'العشاء'};
+            const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'LastThird'];
+            const names = {'Fajr': 'الفجر', 'Sunrise': 'الشروق', 'Dhuhr': 'الظهر', 'Asr': 'العصر', 'Maghrib': 'المغرب', 'Isha': 'العشاء', 'LastThird': 'الثلث الآخر'};
+
+            function calculateLastThird(maghrib, fajr) {
+                if (!maghrib || !fajr) return null;
+                const [mh, mm] = maghrib.split(':').map(Number);
+                const [fh, fm] = fajr.split(':').map(Number);
+                let maghribMinutes = mh * 60 + mm;
+                let fajrMinutes = fh * 60 + fm;
+                if (fajrMinutes <= maghribMinutes) fajrMinutes += 24 * 60;
+                const nightDuration = fajrMinutes - maghribMinutes;
+                const lastThirdStart = maghribMinutes + (2/3) * nightDuration;
+                const totalMinutes = Math.round(lastThirdStart) % (24 * 60);
+                const h = Math.floor(totalMinutes / 60);
+                const m = totalMinutes % 60;
+                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            }
+
+            timings['LastThird'] = calculateLastThird(timings['Maghrib'], timings['Fajr']);
 
             let html = "";
             prayers.forEach(p => {
