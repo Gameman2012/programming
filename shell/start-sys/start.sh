@@ -6,7 +6,6 @@ content='open teams-discord-telegram'
 #المايك
 wpctl set-volume 53 0.50  
 #سكربتات
-/home/mahmoud/programming/shell/start-sys/backup/backup.sh   &
 /home/mahmoud/programming/shell/start-sys/backup/backup-settings.sh &
 #start sound
 brightness=$(brightnessctl -m | cut -d, -f4 | tr -d '%')
