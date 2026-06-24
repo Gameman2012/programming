@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>خلفية Particles.js</title>
+  <meta name="description" content="خلفية متحركة باستخدام particles.js مع إعدادات من ملف JSON خارجي">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a1a;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+
+  </style>
+</head>
+<body>
+
+  <!-- particles.js container -->
+  <div id="particles-js"></div>
+
+
+  <!-- particles.js library -->
+  <script src="particles.js-master/particles.js"></script>
+
+  <script>
+    // تحميل الإعدادات من ملف JSON خارجي
+    particlesJS.load('particles-js', 'config-network.json', function() { console.log('loaded'); });
+    // particlesJS.load('particles-js', 'config-snow.json', function() { console.log('loaded'); });
+  </script>
+
+</body>
+</html>
